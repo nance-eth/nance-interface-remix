@@ -1,11 +1,9 @@
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
-  Form,
   Links,
   LiveReload,
   Meta,
-  NavLink,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -16,10 +14,16 @@ import {
 
 import appStylesHref from "./app.css";
 import tailwindStylesHref from "./tailwind.css";
+import favicon from "./images/favicon.ico";
 import { getContacts, createEmptyContact } from "./data";
 import { useEffect } from "react";
 
 export const links: LinksFunction = () => [
+  {
+    rel: "icon",
+    href: favicon,
+    type: "image/png",
+  },
   { rel: "stylesheet", href: appStylesHref },
   { rel: "stylesheet", href: tailwindStylesHref },
 ];
@@ -60,14 +64,7 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <div
-          className={
-            navigation.state === "loading" && !searching ? "loading" : ""
-          }
-          id="detail"
-        >
-          <Outlet />
-        </div>
+        <Outlet />
 
         <ScrollRestoration />
         <Scripts />

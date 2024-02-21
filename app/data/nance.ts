@@ -62,7 +62,7 @@ export async function getProposals(args: ProposalsQueryArgs) {
   }
 
   return genericFetchAndThrowIfError<ProposalsPacket>(
-    `/${args.space}/proposals? ${urlParams.toString()}`,
+    `/${args.space}/proposals?${urlParams.toString()}`,
   );
 }
 
