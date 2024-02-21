@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { NavLink, useLoaderData } from "@remix-run/react";
-import { getAllSpaces } from "~/nance";
+import { getAllSpaces } from "~/data/nance";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const spaces = await getAllSpaces();
