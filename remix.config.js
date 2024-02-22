@@ -29,6 +29,7 @@ module.exports = {
     "bail",
     "is-plain-obj",
     "trough",
+    "@ungap/structured-clone",
   ],
   ignoredRouteFiles: ["**/.*"],
   serverModuleFormat: "cjs",
