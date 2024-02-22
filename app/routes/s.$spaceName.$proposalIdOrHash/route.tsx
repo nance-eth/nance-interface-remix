@@ -1,18 +1,25 @@
-import { ProposalsPacket } from "@nance/nance-sdk";
-import { useOutletContext, useParams, useRouteError } from "@remix-run/react";
+import { useLoaderData, useRouteError } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import MarkdownWithTOC from "./markdown-with-toc";
+import { getProposal } from "~/data/nance";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
 
-export default function Proposals() {
-  const params = useParams();
-  const proposalsPacket = useOutletContext<ProposalsPacket>();
-  const proposalIdOrHash = params.proposalIdOrHash;
-  const proposal = proposalsPacket.proposals.find(
-    (p) =>
-      p.proposalId?.toString() === proposalIdOrHash ||
-      p.hash === proposalIdOrHash,
-  );
-  invariant(proposal, "Can't find the proposal");
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  invariant(params.spaceName, "Missing spaceName param");
+  invariant(params.proposalIdOrHash, "Missing spaceName param");
+
+  const proposal = await getProposal({
+    space: params.spaceName,
+    hash: params.proposalIdOrHash,
+  });
+  if (!proposal) {
+    throw new Response("Not Found", { status: 404 });
+  }
+  return json({ proposal });
+};
+
+export default function Proposal() {
+  const { proposal } = useLoaderData<typeof loader>();
 
   return (
     <div>

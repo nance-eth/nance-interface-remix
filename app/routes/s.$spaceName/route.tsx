@@ -58,6 +58,7 @@ export default function Space() {
                 {proposalsPacket.proposals.map((proposal) => (
                   <li key={proposal.hash}>
                     <NavLink
+                      prefetch="intent"
                       to={proposal.proposalId?.toString() || proposal.hash}
                       className={({ isActive, isPending }) =>
                         classNames(
@@ -141,14 +142,6 @@ export default function Space() {
 
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-white">
-        <body class="h-full">
-        ```
-      */}
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
@@ -244,7 +237,7 @@ export default function Space() {
 
         <main className="py-10 lg:pl-72">
           <div className="px-4 sm:px-6 lg:px-8">
-            <Outlet context={proposalsPacket} />
+            <Outlet />
           </div>
         </main>
       </div>
