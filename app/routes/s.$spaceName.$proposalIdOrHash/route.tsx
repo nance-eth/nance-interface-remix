@@ -1,11 +1,7 @@
 import { ProposalsPacket } from "@nance/nance-sdk";
-import {
-  useLocation,
-  useOutletContext,
-  useParams,
-  useRouteError,
-} from "@remix-run/react";
+import { useOutletContext, useParams, useRouteError } from "@remix-run/react";
 import invariant from "tiny-invariant";
+import MarkdownWithTOC from "./markdown-with-toc";
 
 export default function Proposals() {
   const params = useParams();
@@ -23,7 +19,7 @@ export default function Proposals() {
       <h2 className="text-xl">
         {proposal.title} by {proposal.author}
       </h2>
-      <p>{proposal.body}</p>
+      <MarkdownWithTOC body={proposal.body || ""} />
     </div>
   );
 }
