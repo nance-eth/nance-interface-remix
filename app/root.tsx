@@ -12,7 +12,6 @@ import {
   useSubmit,
 } from "@remix-run/react";
 
-import appStylesHref from "./app.css";
 import tailwindStylesHref from "./tailwind.css";
 import favicon from "./images/favicon.ico";
 import { getContacts, createEmptyContact } from "./data";
@@ -24,7 +23,6 @@ export const links: LinksFunction = () => [
     href: favicon,
     type: "image/png",
   },
-  { rel: "stylesheet", href: appStylesHref },
   { rel: "stylesheet", href: tailwindStylesHref },
 ];
 
