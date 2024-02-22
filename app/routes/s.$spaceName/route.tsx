@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { useLoaderData, Outlet, NavLink } from "@remix-run/react";
+import { useLoaderData, Outlet, NavLink, Link } from "@remix-run/react";
 import { Fragment, useState } from "react";
 
 import { Dialog, Transition } from "@headlessui/react";
@@ -49,7 +49,9 @@ export default function Space() {
     return (
       <>
         <div className="flex h-16 shrink-0 items-center">
-          <img className="h-8 w-auto" src={favicon} alt="Your Company" />
+          <Link to="/">
+            <img className="h-8 w-auto" src={favicon} alt="Your Company" />
+          </Link>
         </div>
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -223,7 +225,7 @@ export default function Space() {
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
           <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">
-            Dashboard
+            Proposals
           </div>
           <a href="#">
             <span className="sr-only">Your profile</span>

@@ -8,7 +8,7 @@ import { h } from "hastscript";
 
 export default function MarkdownWithTOC({ body }: { body: string }) {
   return (
-    <article className="prose md:prose-lg lg:prose-xl prose-indigo prose-table:table-fixed mx-auto break-words text-gray-500">
+    <article className="prose prose-indigo prose-table:table-fixed mx-auto break-words text-gray-500">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[
