@@ -19,6 +19,7 @@ import {
 
 import { getProposals, getSpace } from "~/data/nance";
 import favicon from "~/images/favicon.ico";
+import { classNames } from "~/utils/tailwind";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -41,10 +42,6 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   return { spaceInfo, proposalsPacket, keyword };
 };
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export default function Space() {
   const { spaceInfo, proposalsPacket, keyword } =
@@ -83,8 +80,8 @@ export default function Space() {
     return (
       <>
         <div className="flex h-16 shrink-0 items-center">
-          <Link to="/">
-            <img className="h-8 w-auto" src={favicon} alt="Your Company" />
+          <Link to={`/s/${spaceInfo.name}`}>
+            <img className="h-8 w-auto" src={favicon} alt="Nance logo" />
           </Link>
         </div>
 

@@ -19,6 +19,7 @@ import {
   XMarkIcon as XMarkIconMini,
 } from "@heroicons/react/20/solid";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
+import { classNames } from "~/utils/tailwind";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -144,10 +145,6 @@ const moods = [
     bgColor: "bg-transparent",
   },
 ];
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export default function Proposal() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
