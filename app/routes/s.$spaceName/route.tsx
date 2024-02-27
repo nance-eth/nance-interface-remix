@@ -111,7 +111,7 @@ export default function Space() {
                 )}
               />
 
-              <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
+              <div className="absolute inset-y-0 right-0 hidden py-1.5 pr-1.5 lg:flex">
                 <kbd className="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400">
                   ⌘K
                 </kbd>
@@ -133,6 +133,7 @@ export default function Space() {
                           proposal.proposalId?.toString() || proposal.hash,
                         search: keyword ? `?keyword=${keyword}` : "",
                       }}
+                      onClick={() => setSidebarOpen(false)}
                       className={({ isActive, isPending }) =>
                         classNames(
                           isActive
@@ -255,18 +256,16 @@ export default function Space() {
           </div>
         </div>
 
-        <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
+        <div className="sticky top-0 z-40 flex items-center justify-between gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
           <button
             type="button"
-            className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+            className="-m-2.5 flex p-2.5 text-gray-700 lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <span className="sr-only">Open sidebar</span>
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+            <p className="ml-2">Proposals</p>
           </button>
-          <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">
-            Proposals
-          </div>
           <a href="#">
             <span className="sr-only">Your profile</span>
             <img
@@ -278,7 +277,12 @@ export default function Space() {
         </div>
 
         <main className="py-10 lg:pl-72">
-          <div className="px-4 sm:px-6 lg:px-8">
+          <div
+            className={classNames(
+              "px-4 sm:px-6 lg:px-8",
+              navigation.state === "loading" && "animate-pulse",
+            )}
+          >
             <Outlet context={spaceInfo} />
           </div>
         </main>
