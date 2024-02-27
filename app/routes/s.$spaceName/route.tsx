@@ -1,7 +1,14 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { useLoaderData, Outlet, NavLink, Link } from "@remix-run/react";
-import { Fragment, useState } from "react";
+import {
+  useLoaderData,
+  Outlet,
+  NavLink,
+  Link,
+  Form,
+  useNavigation,
+} from "@remix-run/react";
+import { Fragment, useEffect, useState } from "react";
 
 import { Dialog, Transition } from "@headlessui/react";
 import {
@@ -13,7 +20,10 @@ import {
 import { getProposals, getSpace } from "~/data/nance";
 import favicon from "~/images/favicon.ico";
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+  const url = new URL(request.url);
+  const keyword = url.searchParams.get("keyword");
+
   invariant(params.spaceName, "Missing spaceName param");
   const spaceInfo = await getSpace(params.spaceName);
   if (!spaceInfo) {
@@ -23,27 +33,51 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     space: params.spaceName,
     cycle: "All",
     limit: 10,
+    keyword,
   });
   if (!proposalsPacket) {
     throw new Response("Not Found", { status: 404 });
   }
-  return { spaceInfo, proposalsPacket };
-};
 
-const teams = [
-  { id: 1, name: "Heroicons", href: "#", initial: "H", current: false },
-  { id: 2, name: "Tailwind Labs", href: "#", initial: "T", current: false },
-  { id: 3, name: "Workcation", href: "#", initial: "W", current: false },
-];
+  return { spaceInfo, proposalsPacket, keyword };
+};
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Space() {
-  const { spaceInfo, proposalsPacket } = useLoaderData<typeof loader>();
-
+  const { spaceInfo, proposalsPacket, keyword } =
+    useLoaderData<typeof loader>();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navigation = useNavigation();
+  const searching =
+    navigation.location &&
+    new URLSearchParams(navigation.location.search).has("keyword");
+
+  // Sync input state with searchParams
+  useEffect(() => {
+    const searchField = document.getElementById("keyword");
+    if (searchField instanceof HTMLInputElement) {
+      searchField.value = keyword || "";
+    }
+  }, [keyword]);
+
+  // Cmd + K
+  useEffect(() => {
+    const keyDownHandler = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === "k") {
+        const searchField = document.getElementById("keyword");
+        searchField?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", keyDownHandler);
+    return () => {
+      window.removeEventListener("keydown", keyDownHandler);
+    };
+  }, []);
 
   function Sidebar() {
     return (
@@ -53,6 +87,38 @@ export default function Space() {
             <img className="h-8 w-auto" src={favicon} alt="Your Company" />
           </Link>
         </div>
+
+        <div>
+          <Form id="search-form" role="search">
+            <div className="relative flex items-center">
+              <input
+                aria-label="Search proposals"
+                type="search"
+                name="keyword"
+                id="keyword"
+                defaultValue={
+                  (searching
+                    ? new URLSearchParams(navigation.location.search).get(
+                        "keyword",
+                      )
+                    : keyword) || ""
+                }
+                placeholder="Search"
+                className={classNames(
+                  "block w-full rounded-md border-0 py-1.5 pl-3 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6",
+                  searching && "animate-pulse",
+                )}
+              />
+
+              <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
+                <kbd className="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400">
+                  ⌘K
+                </kbd>
+              </div>
+            </div>
+          </Form>
+        </div>
+
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
@@ -61,7 +127,11 @@ export default function Space() {
                   <li key={proposal.hash}>
                     <NavLink
                       prefetch="intent"
-                      to={proposal.proposalId?.toString() || proposal.hash}
+                      to={{
+                        pathname:
+                          proposal.proposalId?.toString() || proposal.hash,
+                        search: keyword ? `?keyword=${keyword}` : "",
+                      }}
                       className={({ isActive, isPending }) =>
                         classNames(
                           isActive
@@ -87,38 +157,6 @@ export default function Space() {
                         </>
                       )}
                     </NavLink>
-                  </li>
-                ))}
-              </ul>
-            </li>
-            <li>
-              <div className="text-xs font-semibold leading-6 text-gray-400">
-                Your teams
-              </div>
-              <ul role="list" className="-mx-2 mt-2 space-y-1">
-                {teams.map((team) => (
-                  <li key={team.name}>
-                    <a
-                      href={team.href}
-                      className={classNames(
-                        team.current
-                          ? "bg-gray-50 text-indigo-600"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-                        "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
-                      )}
-                    >
-                      <span
-                        className={classNames(
-                          team.current
-                            ? "border-indigo-600 text-indigo-600"
-                            : "border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600",
-                          "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium",
-                        )}
-                      >
-                        {team.initial}
-                      </span>
-                      <span className="truncate">{team.name}</span>
-                    </a>
                   </li>
                 ))}
               </ul>
