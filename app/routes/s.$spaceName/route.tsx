@@ -7,6 +7,8 @@ import {
   Link,
   Form,
   useNavigation,
+  useLocation,
+  useSearchParams,
 } from "@remix-run/react";
 import { Fragment, useEffect, useState } from "react";
 
@@ -15,15 +17,18 @@ import {
   Bars3Icon,
   DocumentDuplicateIcon,
   XMarkIcon,
+  ArrowLongLeftIcon,
+  ArrowLongRightIcon,
 } from "@heroicons/react/24/outline";
 
 import { getProposals, getSpace } from "~/data/nance";
-import favicon from "~/images/favicon.ico";
 import { classNames } from "~/utils/tailwind";
+import { duplicateAndSetParams } from "~/utils/url";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const keyword = url.searchParams.get("keyword");
+  const page = parseInt(url.searchParams.get("page") || "1");
 
   invariant(params.spaceName, "Missing spaceName param");
   const spaceInfo = await getSpace(params.spaceName);
@@ -35,23 +40,28 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     cycle: "All",
     limit: 10,
     keyword,
+    page,
   });
   if (!proposalsPacket) {
     throw new Response("Not Found", { status: 404 });
   }
 
-  return { spaceInfo, proposalsPacket, keyword };
+  return { spaceInfo, proposalsPacket, keyword, page };
 };
 
 export default function Space() {
-  const { spaceInfo, proposalsPacket, keyword } =
+  const { spaceInfo, proposalsPacket, keyword, page } =
     useLoaderData<typeof loader>();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const navigation = useNavigation();
-  const searching =
+
+  const navigationParams = new URLSearchParams(navigation.location?.search);
+  const changingProposal =
     navigation.location &&
-    new URLSearchParams(navigation.location.search).has("keyword");
+    navigation.location.pathname.localeCompare(location.pathname) !== 0;
+  const searching = navigation.location && !changingProposal;
 
   // Sync input state with searchParams
   useEffect(() => {
@@ -98,11 +108,7 @@ export default function Space() {
                 name="keyword"
                 id="keyword"
                 defaultValue={
-                  (searching
-                    ? new URLSearchParams(navigation.location.search).get(
-                        "keyword",
-                      )
-                    : keyword) || ""
+                  (searching ? navigationParams.get("keyword") : keyword) || ""
                 }
                 placeholder="Search"
                 className={classNames(
@@ -111,7 +117,7 @@ export default function Space() {
                 )}
               />
 
-              <div className="absolute inset-y-0 right-0 hidden py-1.5 pr-1.5 lg:flex">
+              <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
                 <kbd className="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400">
                   ⌘K
                 </kbd>
@@ -123,7 +129,13 @@ export default function Space() {
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
-              <ul role="list" className="-mx-2 space-y-1">
+              <ul
+                role="list"
+                className={classNames(
+                  "-mx-2 space-y-1",
+                  searching && "animate-pulse",
+                )}
+              >
                 {proposalsPacket.proposals.map((proposal) => (
                   <li key={proposal.hash}>
                     <NavLink
@@ -131,7 +143,7 @@ export default function Space() {
                       to={{
                         pathname:
                           proposal.proposalId?.toString() || proposal.hash,
-                        search: keyword ? `?keyword=${keyword}` : "",
+                        search: "?" + searchParams.toString(),
                       }}
                       onClick={() => setSidebarOpen(false)}
                       className={({ isActive, isPending }) =>
@@ -162,6 +174,61 @@ export default function Space() {
                   </li>
                 ))}
               </ul>
+            </li>
+            <li>
+              <div
+                className={classNames(
+                  "flex items-center justify-between border-t border-gray-200 px-4 sm:px-0",
+                  searching && "animate-pulse",
+                )}
+              >
+                <div className="-mt-px flex w-0 flex-1">
+                  {page - 1 >= 1 && (
+                    <Link
+                      to={{
+                        search:
+                          "?" +
+                          duplicateAndSetParams(
+                            searchParams,
+                            "page",
+                            (page - 1).toString(),
+                          ).toString(),
+                      }}
+                      prefetch="intent"
+                      className="inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                    >
+                      <ArrowLongLeftIcon
+                        className="mr-3 h-5 w-5 text-gray-400"
+                        aria-hidden="true"
+                      />
+                      Previous
+                    </Link>
+                  )}
+                </div>
+                <div className="-mt-px flex w-0 flex-1 justify-end">
+                  {proposalsPacket.hasMore && (
+                    <Link
+                      to={{
+                        search:
+                          "?" +
+                          duplicateAndSetParams(
+                            searchParams,
+                            "page",
+                            (page + 1).toString(),
+                          ).toString(),
+                      }}
+                      prefetch="intent"
+                      className="inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                    >
+                      Next
+                      <ArrowLongRightIcon
+                        className="ml-3 h-5 w-5 text-gray-400"
+                        aria-hidden="true"
+                      />
+                    </Link>
+                  )}
+                </div>
+              </div>
             </li>
             <li className="-mx-6 mt-auto">
               <a
@@ -280,7 +347,7 @@ export default function Space() {
           <div
             className={classNames(
               "px-4 sm:px-6 lg:px-8",
-              navigation.state === "loading" && "animate-pulse",
+              changingProposal && "animate-pulse",
             )}
           >
             <Outlet context={spaceInfo} />
