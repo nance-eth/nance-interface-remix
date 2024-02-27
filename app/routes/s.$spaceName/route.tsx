@@ -81,7 +81,11 @@ export default function Space() {
       <>
         <div className="flex h-16 shrink-0 items-center">
           <Link to={`/s/${spaceInfo.name}`}>
-            <img className="h-8 w-auto" src={favicon} alt="Nance logo" />
+            <img
+              className="h-8 w-auto"
+              src={`https://cdn.stamp.fyi/space/${spaceInfo.snapshotSpace}`}
+              alt={`Logo of ${spaceInfo.name} space`}
+            />
           </Link>
         </div>
 
@@ -275,7 +279,7 @@ export default function Space() {
 
         <main className="py-10 lg:pl-72">
           <div className="px-4 sm:px-6 lg:px-8">
-            <Outlet />
+            <Outlet context={spaceInfo} />
           </div>
         </main>
       </div>
