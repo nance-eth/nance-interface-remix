@@ -74,8 +74,8 @@ export default function SpaceIndex() {
         </div>
       </div>
 
-      <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:pb-24 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center sm:mt-24">
+      <div className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
           <p className="text-base font-semibold leading-8 text-indigo-600">
             {spaceInfo.name}
           </p>
@@ -83,15 +83,50 @@ export default function SpaceIndex() {
             {spaceInfo.currentEvent.title} of GC-{spaceInfo.currentCycle}
           </h1>
           <p className="mt-4 text-base leading-7 text-gray-600 sm:mt-6 sm:text-lg sm:leading-8">
-            You can select proposals on the sidebar, or you can try below
-            actions.
+            You can view proposals on the sidebar. There are proposals open for
+            voting, please join if you haven't.
           </p>
         </div>
-        <div className="mx-auto mt-16 flow-root max-w-lg sm:mt-20">
-          <h2 className="sr-only">Popular pages</h2>
+
+        <div className="mx-auto mt-8 flow-root max-w-lg">
+          <h2 className="text-base font-semibold leading-6 text-gray-900">
+            Upcoming events
+          </h2>
+          <ol className="mt-2 divide-y divide-gray-200 text-sm leading-6 text-gray-500">
+            <li className="py-4 sm:flex">
+              <time dateTime="2024-03-02" className="w-28 flex-none">
+                Sat, Mar 2
+              </time>
+              <p className="mt-2 flex-auto sm:mt-0">
+                Multisig execution, signers of Safe assemble to execute
+                proposals.
+              </p>
+              <p className="flex-none sm:ml-6">
+                <time dateTime="2024-03-02T08:00">8:00 AM</time>
+              </p>
+            </li>
+            <li className="py-4 sm:flex">
+              <time dateTime="2024-03-06" className="w-28 flex-none">
+                Sat, Mar 6
+              </time>
+              <p className="mt-2 flex-auto sm:mt-0">
+                Delay period, you can propose new ideas for next cycle.
+              </p>
+              <p className="flex-none sm:ml-6">
+                <time dateTime="2024-03-06T08:00">8:00 AM</time>
+              </p>
+            </li>
+          </ol>
+        </div>
+
+        <div className="mx-auto mt-8 flow-root max-w-lg">
+          <h2 className="text-base font-semibold leading-6 text-gray-900">
+            Space actions
+          </h2>
+
           <ul
             role="list"
-            className="-mt-6 divide-y divide-gray-900/5 border-b border-gray-900/5"
+            className="mt-2 divide-y divide-gray-900/5 border-b border-gray-900/5"
           >
             {links.map((link, linkIdx) => (
               <li key={linkIdx} className="relative flex gap-x-6 py-6">
@@ -121,6 +156,7 @@ export default function SpaceIndex() {
               </li>
             ))}
           </ul>
+
           <div className="mt-10 flex justify-center">
             <a
               href="/"
@@ -133,7 +169,7 @@ export default function SpaceIndex() {
             </a>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
