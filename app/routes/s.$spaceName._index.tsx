@@ -1,7 +1,11 @@
 import { ChevronRightIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { PlusIcon, QueueListIcon, RssIcon } from "@heroicons/react/24/solid";
 import { SpaceInfo } from "@nance/nance-sdk";
-import { useOutletContext } from "@remix-run/react";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData, useOutletContext } from "@remix-run/react";
+import { addDays, format, subDays } from "date-fns";
+import invariant from "tiny-invariant";
+import { getSpaceConfig } from "~/data/nance";
 
 const links = [
   {
@@ -24,8 +28,46 @@ const links = [
   },
 ];
 
+const EVENTS = ["Temperature Check", "Snapshot Vote", "Execution", "Delay"];
+
+function calculateSchedules(
+  startDate: Date,
+  currentEvent: string,
+  cycleStageLengths: number[],
+) {
+  const currentIndex = EVENTS.indexOf(currentEvent);
+  const previousEventDate = subDays(
+    startDate,
+    cycleStageLengths[(currentIndex - 1 + 4) % 4],
+  );
+  const nextEventDate = addDays(
+    startDate,
+    cycleStageLengths[(currentIndex + 1) % 4],
+  );
+  return [previousEventDate, startDate, nextEventDate];
+}
+
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  invariant(params.spaceName, "Missing spaceName param");
+  const spaceConfig = await getSpaceConfig(params.spaceName);
+  if (!spaceConfig) {
+    throw new Response("Not Found", { status: 404 });
+  }
+
+  return {
+    cycleStageLengths: spaceConfig.cycleStageLengths,
+    displayName: spaceConfig.displayName,
+  };
+};
+
 export default function SpaceIndex() {
   const spaceInfo = useOutletContext<SpaceInfo>();
+  const { cycleStageLengths, displayName } = useLoaderData<typeof loader>();
+  const schedules = calculateSchedules(
+    new Date(spaceInfo.currentEvent.start),
+    spaceInfo.currentEvent.title,
+    cycleStageLengths,
+  );
 
   return (
     <div className="bg-white">
@@ -77,43 +119,61 @@ export default function SpaceIndex() {
       <div className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-base font-semibold leading-8 text-indigo-600">
-            {spaceInfo.name}
+            {displayName || spaceInfo.name}
           </p>
           <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             {spaceInfo.currentEvent.title} of GC-{spaceInfo.currentCycle}
           </h1>
           <p className="mt-4 text-base leading-7 text-gray-600 sm:mt-6 sm:text-lg sm:leading-8">
-            You can view proposals on the sidebar. There are proposals open for
-            voting, please join if you haven't.
+            You can view proposals on the sidebar.
           </p>
         </div>
 
         <div className="mx-auto mt-8 flow-root max-w-lg">
           <h2 className="text-base font-semibold leading-6 text-gray-900">
-            Upcoming events
+            Governance schedule
           </h2>
           <ol className="mt-2 divide-y divide-gray-200 text-sm leading-6 text-gray-500">
             <li className="py-4 sm:flex">
-              <time dateTime="2024-03-02" className="w-28 flex-none">
-                Sat, Mar 2
+              <time
+                dateTime={schedules[0].toISOString()}
+                className="w-28 flex-none"
+              >
+                {format(schedules[0], "EEE, LLL d")}
               </time>
-              <p className="mt-2 flex-auto sm:mt-0">
-                Multisig execution, signers of Safe assemble to execute
-                proposals.
-              </p>
+              <p className="mt-2 flex-auto sm:mt-0">Temperature Check</p>
               <p className="flex-none sm:ml-6">
-                <time dateTime="2024-03-02T08:00">8:00 AM</time>
+                <time dateTime={schedules[0].toISOString()}>
+                  {format(schedules[0], "h:mm aa")}
+                </time>
+              </p>
+            </li>
+            <li className="py-4 text-indigo-600 sm:flex">
+              <time
+                dateTime={schedules[1].toISOString()}
+                className="w-28 flex-none"
+              >
+                {format(schedules[1], "EEE, LLL d")}
+              </time>
+              <p className="mt-2 flex-auto sm:mt-0">Snasphot vote</p>
+              <p className="flex-none sm:ml-6">
+                <time dateTime={schedules[1].toISOString()}>
+                  {format(schedules[1], "h:mm aa")}
+                </time>
               </p>
             </li>
             <li className="py-4 sm:flex">
-              <time dateTime="2024-03-06" className="w-28 flex-none">
-                Sat, Mar 6
+              <time
+                dateTime={schedules[2].toISOString()}
+                className="w-28 flex-none"
+              >
+                {format(schedules[2], "EEE, LLL d")}
               </time>
-              <p className="mt-2 flex-auto sm:mt-0">
-                Delay period, you can propose new ideas for next cycle.
-              </p>
+              <p className="mt-2 flex-auto sm:mt-0">Multisig execution</p>
               <p className="flex-none sm:ml-6">
-                <time dateTime="2024-03-06T08:00">8:00 AM</time>
+                <time dateTime={schedules[2].toISOString()}>
+                  {format(schedules[2], "h:mm aa")}
+                </time>
               </p>
             </li>
           </ol>

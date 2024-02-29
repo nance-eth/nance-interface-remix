@@ -21,6 +21,85 @@ export interface ProposalQueryArgs extends BaseQueryArgs {
   hash: string;
 }
 
+export type SpaceConfig = {
+  space: string;
+  displayName: string | null;
+  spaceOwners: string[];
+  cid: string;
+  config: NanceConfig;
+  calendar: DateEvent[];
+  cycleTriggerTime: string;
+  cycleStageLengths: number[];
+  dialogHandlerMessageIds: DialogHandlerMessageIds;
+  lastUpdated: Date;
+  cycleDayLastUpdated: Date;
+  currentGovernanceCycle: number;
+};
+
+export interface NanceConfig {
+  name: string;
+  juicebox: {
+    network: "mainnet" | "goerli";
+    projectId: string;
+    gnosisSafeAddress: string;
+    governorAddress: string;
+  };
+  discord: {
+    API_KEY: string;
+    guildId: string;
+    roles: {
+      governance: string;
+    };
+    channelIds: {
+      proposals: string;
+      bookkeeping: string;
+      transactions: string;
+    };
+    poll: {
+      minYesVotes: number;
+      yesNoRatio: number;
+      verifyRole: string;
+    };
+    reminder: {
+      type: string;
+      channelIds: string[];
+      imagesCID: string;
+      imageNames: string[];
+    };
+  };
+  proposalIdPrefix: string;
+  dolt: DoltConfig;
+  snapshot: {
+    space: string;
+    choices: string[];
+    minTokenPassingAmount: number;
+    passingRatio: number;
+  };
+  submitAsApproved?: boolean;
+}
+
+export type DoltConfig = {
+  enabled: boolean;
+  owner: string;
+  repo: string;
+};
+
+export interface DateEvent {
+  title: string;
+  start: Date;
+  end: Date;
+}
+
+export type DialogHandlerMessageIds = {
+  temperatureCheckRollup: string;
+  voteRollup: string;
+  voteQuorumAlert: string;
+  voteEndAlert: string;
+  voteResultsRollup: string;
+  temperatureCheckStartAlert: string;
+  temperatureCheckEndAlert: string;
+};
+
 const DEFAULT_API_ENDPOINT = "https://api.nance.app";
 
 export async function genericFetchAndThrowIfError<T>(
@@ -44,6 +123,10 @@ export async function getAllSpaces() {
 
 export async function getSpace(spaceName: string) {
   return genericFetchAndThrowIfError<SpaceInfo>(`/${spaceName}`);
+}
+
+export async function getSpaceConfig(spaceName: string) {
+  return genericFetchAndThrowIfError<SpaceConfig>(`/ish/config/${spaceName}`);
 }
 
 export async function getProposals(args: ProposalsQueryArgs) {
