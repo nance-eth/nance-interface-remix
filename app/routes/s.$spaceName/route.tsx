@@ -15,7 +15,6 @@ import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   Bars3Icon,
-  DocumentDuplicateIcon,
   XMarkIcon,
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
@@ -24,6 +23,7 @@ import {
 import { getProposals, getSpace } from "~/data/nance";
 import { classNames } from "~/utils/tailwind";
 import { duplicateAndSetParams } from "~/utils/url";
+import ProposalStatus from "./status-icon";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -158,16 +158,12 @@ export default function Space() {
                     >
                       {({ isActive, isPending }) => (
                         <>
-                          <DocumentDuplicateIcon
-                            className={classNames(
-                              isActive
-                                ? "text-indigo-600"
-                                : "text-gray-400 group-hover:text-indigo-600",
-                              "h-6 w-6 shrink-0",
-                            )}
-                            aria-hidden="true"
+                          <ProposalStatus
+                            isActive={isActive}
+                            status={proposal.status}
                           />
                           {proposal.title}
+                          {proposal.proposalId}
                         </>
                       )}
                     </NavLink>
