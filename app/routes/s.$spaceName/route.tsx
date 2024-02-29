@@ -163,7 +163,6 @@ export default function Space() {
                             status={proposal.status}
                           />
                           {proposal.title}
-                          {proposal.proposalId}
                         </>
                       )}
                     </NavLink>
