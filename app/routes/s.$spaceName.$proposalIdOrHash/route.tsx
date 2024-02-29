@@ -7,7 +7,6 @@ import { Fragment, useState } from "react";
 import { Listbox, Menu, Transition } from "@headlessui/react";
 import {
   CalendarDaysIcon,
-  CreditCardIcon,
   EllipsisVerticalIcon,
   FaceFrownIcon,
   FaceSmileIcon,
@@ -20,6 +19,8 @@ import {
 } from "@heroicons/react/20/solid";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { classNames } from "~/utils/tailwind";
+import { format } from "date-fns";
+import ActionLabel from "./action-label";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -151,6 +152,11 @@ export default function Proposal() {
   const [selected, setSelected] = useState(moods[5]);
 
   const { proposal } = useLoaderData<typeof loader>();
+  const lastEdittedTime = new Date(
+    proposal.lastEditedTime || proposal.date || 0,
+  );
+
+  console.debug("actions", proposal.actions);
 
   return (
     <>
@@ -264,7 +270,7 @@ export default function Proposal() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-2xl grid-cols-1 grid-rows-1 items-start gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
           {/* Metadata */}
-          <div className="lg:col-start-3 lg:row-end-1">
+          <div className="hidden lg:col-start-3 lg:row-end-1 lg:block">
             <h2 className="sr-only">Metadata</h2>
             <div className="rounded-lg bg-gray-50 shadow-sm ring-1 ring-gray-900/5">
               <dl className="flex flex-wrap">
@@ -273,7 +279,7 @@ export default function Proposal() {
                     Request
                   </dt>
                   <dd className="mt-1 text-base font-semibold leading-6 text-gray-900">
-                    $10,560.00
+                    ---
                   </dd>
                 </div>
                 <div className="flex-none self-end px-6 pt-4">
@@ -296,26 +302,16 @@ export default function Proposal() {
                 </div>
                 <div className="mt-4 flex w-full flex-none gap-x-4 px-6">
                   <dt className="flex-none">
-                    <span className="sr-only">Due date</span>
+                    <span className="sr-only">Last edited date</span>
                     <CalendarDaysIcon
                       className="h-6 w-5 text-gray-400"
                       aria-hidden="true"
                     />
                   </dt>
                   <dd className="text-sm leading-6 text-gray-500">
-                    <time dateTime="2023-01-31">January 31, 2023</time>
-                  </dd>
-                </div>
-                <div className="mt-4 flex w-full flex-none gap-x-4 px-6">
-                  <dt className="flex-none">
-                    <span className="sr-only">Status</span>
-                    <CreditCardIcon
-                      className="h-6 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </dt>
-                  <dd className="text-sm leading-6 text-gray-500">
-                    Transfer 1600 JBX
+                    <time dateTime="2023-01-31">
+                      {format(lastEdittedTime, "LLL d, yyy")}
+                    </time>
                   </dd>
                 </div>
               </dl>
@@ -330,8 +326,19 @@ export default function Proposal() {
             </div>
           </div>
 
-          {/* Invoice */}
+          {/* Actions */}
           <div className="-mx-4 px-4 py-8 shadow-sm ring-1 ring-gray-900/5 sm:mx-0 sm:rounded-lg sm:px-8 sm:pb-14 lg:col-span-2 lg:row-span-2 lg:row-end-2 xl:px-16 xl:pb-20 xl:pt-16">
+            {proposal.actions && proposal.actions.length > 0 && (
+              <div className="mb-6 break-words ">
+                <p className="text-gray-400">Proposed Transactions</p>
+                <p className="mt-2 space-y-2 text-sm text-gray-500">
+                  {proposal.actions?.map((action) => (
+                    <ActionLabel action={action} key={action.uuid} />
+                  ))}
+                </p>
+                <div className="mt-2 w-full border-t border-gray-300" />
+              </div>
+            )}
             <MarkdownWithTOC body={proposal.body || "--- No content ---"} />
           </div>
 

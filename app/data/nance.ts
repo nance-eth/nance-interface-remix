@@ -100,6 +100,26 @@ export type DialogHandlerMessageIds = {
   temperatureCheckEndAlert: string;
 };
 
+export type CustomTransactionArg = {
+  id: string;
+  value: string;
+  type: string;
+  name: string;
+};
+
+export type CustomTransaction = {
+  contract: string;
+  chainId?: number;
+  value: string;
+  // function approve(address guy, uint256 wad) returns (bool)
+  // can pass as ABI
+  // can have unnamed parameters
+  functionName: string;
+  args: CustomTransactionArg[];
+  tenderlyId: string;
+  tenderlyStatus: string;
+};
+
 const DEFAULT_API_ENDPOINT = "https://api.nance.app";
 
 export async function genericFetchAndThrowIfError<T>(
