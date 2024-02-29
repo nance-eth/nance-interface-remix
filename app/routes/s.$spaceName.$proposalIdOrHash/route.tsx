@@ -156,8 +156,6 @@ export default function Proposal() {
     proposal.lastEditedTime || proposal.date || 0,
   );
 
-  console.debug("actions", proposal.actions);
-
   return (
     <>
       <header className="relative isolate">

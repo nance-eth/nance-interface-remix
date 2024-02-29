@@ -94,7 +94,8 @@ function ReserveActionLabel({ reserve }: { reserve: Reserve }) {
 function TransferActionLabel({ transfer }: { transfer: Transfer }) {
   const contract = transfer.contract;
   const functionName = "transfer";
-  const label = `.${functionName}(amount: ${transfer.amount})`;
+  const label1 = `.${functionName}(to: `;
+  const label2 = `, amount: ${transfer.amount})`;
 
   return (
     <p>
@@ -102,9 +103,18 @@ function TransferActionLabel({ transfer }: { transfer: Transfer }) {
         href={`https://etherscan.io/address/${contract}`}
         className="hover:underline"
       >
-        {contract}
+        {contract || "<native>"}
       </a>
-      <p className="ml-4">{label}</p>
+      <p className="ml-4">
+        {label1}
+        <a
+          href={`https://etherscan.io/address/${transfer.to}`}
+          className="hover:underline"
+        >
+          {transfer.to}
+        </a>
+        {label2}
+      </p>
     </p>
   );
 }
