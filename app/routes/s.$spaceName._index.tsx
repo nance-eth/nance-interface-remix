@@ -97,7 +97,8 @@ export default function SpaceIndex() {
           />
         </div>
         <p className="text-sm leading-6 text-gray-900">
-          This site is still under construction.{" "}
+          This site is still under construction, you can search and view
+          proposals for now.{" "}
           <a
             href="https://nance.app"
             className="whitespace-nowrap font-semibold"
