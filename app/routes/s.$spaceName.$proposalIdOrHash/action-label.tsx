@@ -6,6 +6,7 @@ import {
   Transfer,
 } from "@nance/nance-sdk";
 import { formatEther } from "ethers";
+import AddressLink from "~/components/address-link";
 import { CustomTransaction } from "~/data/nance";
 import {
   extractFunctionName,
@@ -39,43 +40,33 @@ export default function ActionLabel({ action }: { action: Action }) {
 
 function ReserveEntryLabel({ split }: { split: JBSplitStruct }) {
   const percent = split.percent as string;
-  const label = `.<requestReserve>(percent: ${(parseInt(percent) / 10000000).toFixed(2)}%)`;
+  const label = `Reserve ${(parseInt(percent) / 10000000).toFixed(2)}% to`;
 
   if (split.projectId === 0) {
     return (
-      <p>
-        <a
-          href={`https://etherscan.io/address/${split.beneficiary}`}
-          className="hover:underline"
-        >
-          {split.beneficiary}
-        </a>
-        <p className="ml-4">{label}</p>
+      <p className="flex gap-x-1">
+        <span>{label}</span>
+        <AddressLink address={split.beneficiary} />
       </p>
     );
   } else {
     return (
-      <p>
+      <p className="flex gap-x-1">
+        <span>{label}</span>
         <a
           href={`https://juicebox.money/v2/p/${split.projectId}`}
           className="hover:underline"
         >
-          {`<juicebox@${split.projectId}>`}
+          {`juicebox@${split.projectId}`}
         </a>
-        <p className="ml-4">{label}</p>
       </p>
     );
   }
 }
 
 function ReserveActionLabel({ reserve }: { reserve: Reserve }) {
-  const comment =
-    "// This action is part of a Juicebox reconfiguration which will override reserve list.";
-
   return (
     <p>
-      <p className="text-gray-400">{comment}</p>
-
       {reserve.splits
         .sort(
           (a, b) =>
@@ -122,34 +113,27 @@ function TransferActionLabel({ transfer }: { transfer: Transfer }) {
 function PayoutActionLabel({ payout }: { payout: Payout }) {
   const address = payout.address;
   const project = payout.project;
-  const comment =
-    "// This action is part of a Juicebox reconfiguration which will update payout list.";
-  const label = `.<requestPayout>(cycles: ${payout.count}, usd: ${payout.amountUSD})`;
+  const label = `${payout.amountUSD} USD for ${payout.count} cycles`;
 
   if (!project) {
     return (
-      <p>
-        <p className="text-gray-400">{comment}</p>
-        <a
-          href={`https://etherscan.io/address/${address}`}
-          className="hover:underline"
-        >
-          {address}
-        </a>
-        <p className="ml-4">{label}</p>
+      <p className="flex gap-x-1">
+        <span>Pay</span>
+        <AddressLink address={address} />
+        <span>{label}</span>
       </p>
     );
   } else {
     return (
-      <p>
-        <p className="text-gray-400">{comment}</p>
+      <p className="flex gap-x-1">
+        <span>Pay</span>
         <a
           href={`https://juicebox.money/v2/p/${project}`}
           className="hover:underline"
         >
-          {`<juicebox@${project}>`}
+          {`juicebox@${project}`}
         </a>
-        <p className="ml-4">{label}</p>
+        <span>{label}</span>
       </p>
     );
   }
