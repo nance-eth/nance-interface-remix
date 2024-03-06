@@ -10,7 +10,7 @@ export default function AddressLink({
   return (
     <a
       href={`https://etherscan.io/address/${address}`}
-      className="inline-block hover:underline"
+      className="inline-block w-20 truncate break-words hover:underline xl:hover:w-fit"
     >
       {address}
     </a>

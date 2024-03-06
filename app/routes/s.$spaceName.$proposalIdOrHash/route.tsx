@@ -21,6 +21,7 @@ import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { classNames } from "~/utils/tailwind";
 import { format } from "date-fns";
 import ActionLabel from "./action-label";
+import AddressLink from "~/components/address-link";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -175,8 +176,8 @@ export default function Proposal() {
           <div className="absolute inset-x-0 bottom-0 h-px bg-gray-900/5" />
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="mx-auto flex max-w-2xl items-center justify-between gap-x-8 lg:mx-0 lg:max-w-none">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-10">
+          <div className="mx-auto flex max-w-2xl flex-col items-center justify-between gap-x-8 gap-y-4 lg:mx-0 lg:max-w-none lg:flex-row">
             <div className="flex items-center gap-x-6">
               <img
                 src="https://tailwindui.com/img/logos/48x48/tuple.svg"
@@ -184,9 +185,10 @@ export default function Proposal() {
                 className="h-16 w-16 flex-none rounded-full ring-1 ring-gray-900/10"
               />
               <h1>
-                <div className="text-sm leading-6 text-gray-500">
-                  {proposal.proposalId || proposal.hash.slice(0, 6)}
-                </div>
+                <p className="mt-1 flex gap-x-1 text-xs leading-5 text-gray-500">
+                  <span>{`GC-${proposal.governanceCycle}, ${proposal.proposalId} - by`}</span>
+                  <AddressLink address={proposal.authorAddress} />
+                </p>
                 <div className="mt-1 text-base font-semibold leading-6 text-gray-900">
                   {proposal.title}
                 </div>
@@ -267,63 +269,6 @@ export default function Proposal() {
 
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-2xl grid-cols-1 grid-rows-1 items-start gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-          {/* Metadata */}
-          <div className="hidden lg:col-start-3 lg:row-end-1 lg:block">
-            <h2 className="sr-only">Metadata</h2>
-            <div className="rounded-lg bg-gray-50 shadow-sm ring-1 ring-gray-900/5">
-              <dl className="flex flex-wrap">
-                <div className="flex-auto pl-6 pt-6">
-                  <dt className="text-sm font-semibold leading-6 text-gray-900">
-                    Request
-                  </dt>
-                  <dd className="mt-1 text-base font-semibold leading-6 text-gray-900">
-                    ---
-                  </dd>
-                </div>
-                <div className="flex-none self-end px-6 pt-4">
-                  <dt className="sr-only">Status</dt>
-                  <dd className="rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-600 ring-1 ring-inset ring-green-600/20">
-                    {proposal.status}
-                  </dd>
-                </div>
-                <div className="mt-6 flex w-full flex-none gap-x-4 border-t border-gray-900/5 px-6 pt-6">
-                  <dt className="flex-none">
-                    <span className="sr-only">Author</span>
-                    <UserCircleIcon
-                      className="h-6 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </dt>
-                  <dd className="overflow-x-auto text-sm font-medium leading-6 text-gray-900">
-                    {proposal.authorAddress || "Unknown"}
-                  </dd>
-                </div>
-                <div className="mt-4 flex w-full flex-none gap-x-4 px-6">
-                  <dt className="flex-none">
-                    <span className="sr-only">Last edited date</span>
-                    <CalendarDaysIcon
-                      className="h-6 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </dt>
-                  <dd className="text-sm leading-6 text-gray-500">
-                    <time dateTime="2023-01-31">
-                      {format(lastEdittedTime, "LLL d, yyy")}
-                    </time>
-                  </dd>
-                </div>
-              </dl>
-              <div className="mt-6 border-t border-gray-900/5 px-6 py-6">
-                <a
-                  href={proposal.discussionThreadURL || "#"}
-                  className="text-sm font-semibold leading-6 text-gray-900"
-                >
-                  Chat within discord <span aria-hidden="true">&rarr;</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
           {/* Actions */}
           <div className="-mx-4 px-4 py-8 shadow-sm ring-1 ring-gray-900/5 sm:mx-0 sm:rounded-lg sm:px-8 sm:pb-14 lg:col-span-2 lg:row-span-2 lg:row-end-2 xl:px-16 xl:pb-20 xl:pt-16">
             {proposal.actions && proposal.actions.length > 0 && (
