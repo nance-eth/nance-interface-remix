@@ -7,12 +7,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { classNames } from "~/utils/tailwind";
 
-export default function ProposalStatus({
+export default function ProposalStatusIcon({
   status,
-  isActive,
+  isActive = false,
 }: {
   status: string;
-  isActive: boolean;
+  isActive?: boolean;
 }) {
   if (["Voting", "Temperature Check"].includes(status)) {
     return (
