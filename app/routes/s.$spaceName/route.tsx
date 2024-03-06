@@ -9,6 +9,7 @@ import {
 import {
   Form,
   Link,
+  NavLink,
   Outlet,
   useLoaderData,
   useNavigation,
@@ -24,10 +25,6 @@ const user = {
   imageUrl:
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
 };
-const navigations = [
-  { name: "Dashboard", href: "#", current: true },
-  { name: "Spaces", href: "/", current: false },
-];
 const userNavigation = [
   { name: "Your Profile", href: "#" },
   { name: "Settings", href: "#" },
@@ -105,21 +102,34 @@ export default function SpaceLayout() {
                       </div>
                       <div className="hidden lg:ml-10 lg:block">
                         <div className="flex space-x-4">
-                          {navigations.map((item) => (
-                            <Link
-                              key={item.name}
-                              to={item.href}
-                              className={classNames(
-                                item.current
+                          <NavLink
+                            to={`/s/${spaceInfo.name}`}
+                            className={({ isActive, isPending }) =>
+                              classNames(
+                                isActive
                                   ? "bg-indigo-700 text-white"
                                   : "text-white hover:bg-indigo-500 hover:bg-opacity-75",
                                 "rounded-md px-3 py-2 text-sm font-medium",
-                              )}
-                              aria-current={item.current ? "page" : undefined}
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
+                              )
+                            }
+                            end
+                          >
+                            Dashboard
+                          </NavLink>
+
+                          <NavLink
+                            to={`/`}
+                            className={({ isActive, isPending }) =>
+                              classNames(
+                                isActive
+                                  ? "bg-indigo-700 text-white"
+                                  : "text-white hover:bg-indigo-500 hover:bg-opacity-75",
+                                "rounded-md px-3 py-2 text-sm font-medium",
+                              )
+                            }
+                          >
+                            Spaces
+                          </NavLink>
                         </div>
                       </div>
                     </div>
@@ -243,22 +253,25 @@ export default function SpaceLayout() {
 
                 <Disclosure.Panel className="lg:hidden">
                   <div className="space-y-1 px-2 pb-3 pt-2">
-                    {navigations.map((item) => (
-                      <Disclosure.Button
-                        key={item.name}
-                        as="a"
-                        href={item.href}
-                        className={classNames(
-                          item.current
-                            ? "bg-indigo-700 text-white"
-                            : "text-white hover:bg-indigo-500 hover:bg-opacity-75",
-                          "block rounded-md px-3 py-2 text-base font-medium",
-                        )}
-                        aria-current={item.current ? "page" : undefined}
-                      >
-                        {item.name}
-                      </Disclosure.Button>
-                    ))}
+                    <Disclosure.Button
+                      as="a"
+                      href={`/s/${spaceInfo.name}`}
+                      className={
+                        "block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-indigo-500 hover:bg-opacity-75"
+                      }
+                    >
+                      Dashboard
+                    </Disclosure.Button>
+
+                    <Disclosure.Button
+                      as="a"
+                      href={`/`}
+                      className={
+                        "block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-indigo-500 hover:bg-opacity-75"
+                      }
+                    >
+                      Spaces
+                    </Disclosure.Button>
                   </div>
                   <div className="border-t border-indigo-700 pb-3 pt-4">
                     <div className="flex items-center px-5">
