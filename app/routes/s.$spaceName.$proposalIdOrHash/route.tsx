@@ -6,7 +6,6 @@ import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Fragment, useState } from "react";
 import { Listbox, Menu, Transition } from "@headlessui/react";
 import {
-  CalendarDaysIcon,
   EllipsisVerticalIcon,
   FaceFrownIcon,
   FaceSmileIcon,
@@ -14,14 +13,13 @@ import {
   HandThumbUpIcon,
   HeartIcon,
   PaperClipIcon,
-  UserCircleIcon,
   XMarkIcon as XMarkIconMini,
 } from "@heroicons/react/20/solid";
-import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { classNames } from "~/utils/tailwind";
-import { format } from "date-fns";
 import ActionLabel from "./action-label";
 import AddressLink from "~/components/address-link";
+import getVotesOfProposal from "~/data/snapshot";
+import { formatDistanceStrict, fromUnixTime } from "date-fns";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -34,7 +32,8 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   if (!proposal) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json({ proposal });
+  const votes = await getVotesOfProposal(proposal.voteURL);
+  return json({ proposal, votes });
 };
 
 export function ErrorBoundary() {
@@ -47,62 +46,6 @@ export function ErrorBoundary() {
   );
 }
 
-const activity = [
-  {
-    id: 1,
-    type: "created",
-    person: { name: "Chelsea Hagon" },
-    date: "7d ago",
-    dateTime: "2023-01-23T10:32",
-  },
-  {
-    id: 2,
-    type: "edited",
-    person: { name: "Chelsea Hagon" },
-    date: "6d ago",
-    dateTime: "2023-01-23T11:03",
-  },
-  {
-    id: 3,
-    type: "published",
-    person: { name: "Chelsea Hagon" },
-    date: "6d ago",
-    dateTime: "2023-01-23T11:24",
-  },
-  {
-    id: 4,
-    type: "commented",
-    person: {
-      name: "Chelsea Hagon",
-      imageUrl:
-        "https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-    },
-    comment: "Excited to see where this goes!",
-    date: "3d ago",
-    dateTime: "2023-01-23T15:56",
-  },
-  {
-    id: 5,
-    type: "voted",
-    person: { name: "twodam.eth" },
-    date: "2d ago",
-    dateTime: "2023-01-24T09:12",
-  },
-  {
-    id: 6,
-    type: "voted",
-    person: { name: "jigglyjams.eth" },
-    date: "2d ago",
-    dateTime: "2023-01-24T09:12",
-  },
-  {
-    id: 7,
-    type: "executed",
-    person: { name: "zeugh.eth" },
-    date: "1d ago",
-    dateTime: "2023-01-24T09:20",
-  },
-];
 const moods = [
   {
     name: "Excited",
@@ -149,13 +92,9 @@ const moods = [
 ];
 
 export default function Proposal() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selected, setSelected] = useState(moods[5]);
 
-  const { proposal } = useLoaderData<typeof loader>();
-  const lastEdittedTime = new Date(
-    proposal.lastEditedTime || proposal.date || 0,
-  );
+  const { proposal, votes } = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -269,7 +208,7 @@ export default function Proposal() {
 
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-2xl grid-cols-1 grid-rows-1 items-start gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-          {/* Actions */}
+          {/* Proposal */}
           <div className="-mx-4 px-4 py-8 shadow-sm ring-1 ring-gray-900/5 sm:mx-0 sm:rounded-lg sm:px-8 sm:pb-14 lg:col-span-2 lg:row-span-2 lg:row-end-2 xl:px-16 xl:pb-20 xl:pt-16">
             {proposal.actions && proposal.actions.length > 0 && (
               <div className="mb-6 break-words ">
@@ -285,28 +224,26 @@ export default function Proposal() {
             <MarkdownWithTOC body={proposal.body || "--- No content ---"} />
           </div>
 
+          {/* Votes */}
           <div className="lg:col-start-3">
-            {/* Activity feed */}
             <h2 className="text-sm font-semibold leading-6 text-gray-900">
-              Activity
+              Votes
             </h2>
             <ul role="list" className="mt-6 space-y-6">
-              {activity.map((activityItem, activityItemIdx) => (
-                <li key={activityItem.id} className="relative flex gap-x-4">
+              {votes.map((vote, voteIdx) => (
+                <li key={vote.id} className="relative flex gap-x-4">
                   <div
                     className={classNames(
-                      activityItemIdx === activity.length - 1
-                        ? "h-6"
-                        : "-bottom-6",
+                      voteIdx === votes.length - 1 ? "h-6" : "-bottom-6",
                       "absolute left-0 top-0 flex w-6 justify-center",
                     )}
                   >
                     <div className="w-px bg-gray-200" />
                   </div>
-                  {activityItem.type === "commented" ? (
+                  {vote.reason ? (
                     <>
                       <img
-                        src={activityItem.person.imageUrl}
+                        src={`https://cdn.stamp.fyi/avatar/${vote.voter}`}
                         alt=""
                         className="relative mt-3 h-6 w-6 flex-none rounded-full bg-gray-50"
                       />
@@ -314,45 +251,50 @@ export default function Proposal() {
                         <div className="flex justify-between gap-x-4">
                           <div className="py-0.5 text-xs leading-5 text-gray-500">
                             <span className="font-medium text-gray-900">
-                              {activityItem.person.name}
+                              {vote.voter.slice(0, 8)}
                             </span>{" "}
-                            commented
+                            voted {vote.choice}
                           </div>
                           <time
-                            dateTime={activityItem.dateTime}
+                            dateTime={fromUnixTime(vote.created).toISOString()}
                             className="flex-none py-0.5 text-xs leading-5 text-gray-500"
                           >
-                            {activityItem.date}
+                            {formatDistanceStrict(
+                              fromUnixTime(vote.created),
+                              new Date(),
+                              {
+                                addSuffix: true,
+                              },
+                            )}
                           </time>
                         </div>
                         <p className="text-sm leading-6 text-gray-500">
-                          {activityItem.comment}
+                          {vote.reason}
                         </p>
                       </div>
                     </>
                   ) : (
                     <>
                       <div className="relative flex h-6 w-6 flex-none items-center justify-center bg-white">
-                        {activityItem.type === "executed" ? (
-                          <CheckCircleIcon
-                            className="h-6 w-6 text-indigo-600"
-                            aria-hidden="true"
-                          />
-                        ) : (
-                          <div className="h-1.5 w-1.5 rounded-full bg-gray-100 ring-1 ring-gray-300" />
-                        )}
+                        <div className="h-1.5 w-1.5 rounded-full bg-gray-100 ring-1 ring-gray-300" />
                       </div>
                       <p className="flex-auto py-0.5 text-xs leading-5 text-gray-500">
                         <span className="font-medium text-gray-900">
-                          {activityItem.person.name}
+                          {vote.voter.slice(0, 8)}
                         </span>{" "}
-                        {activityItem.type} the proposal.
+                        voted {vote.choice}
                       </p>
                       <time
-                        dateTime={activityItem.dateTime}
+                        dateTime={fromUnixTime(vote.created).toISOString()}
                         className="flex-none py-0.5 text-xs leading-5 text-gray-500"
                       >
-                        {activityItem.date}
+                        {formatDistanceStrict(
+                          fromUnixTime(vote.created),
+                          new Date(),
+                          {
+                            addSuffix: true,
+                          },
+                        )}
                       </time>
                     </>
                   )}

@@ -30,6 +30,10 @@ const votesOfProposalQuery = gql`
       vp
       reason
     }
+
+    proposal(id: $id) {
+      choices
+    }
   }
 `;
 
@@ -51,11 +55,23 @@ export default async function getVotesOfProposal(
   orderBy: "created" | "vp" = "created",
   first: number = 10,
 ) {
-  const variable = { id, skip, orderBy, first };
-  const data = await graphQLClient.request<{ votes: SnapshotVote[] }>(
-    votesOfProposalQuery,
-    variable,
-  );
+  if (!id) {
+    return [];
+  }
 
-  return data.votes;
+  const variable = { id, skip, orderBy, first };
+  const data = await graphQLClient.request<{
+    votes: SnapshotVote[];
+    proposal: { choices: string[] };
+  }>(votesOfProposalQuery, variable);
+
+  const choices = ["-", ...data.proposal.choices];
+  const votes = data.votes.map((vote) => {
+    return {
+      ...vote,
+      choice: choices[vote.choice] || vote.choice,
+    };
+  });
+
+  return votes;
 }
