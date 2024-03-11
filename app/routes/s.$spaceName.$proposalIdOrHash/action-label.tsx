@@ -3,17 +3,27 @@ import {
   JBSplitStruct,
   Payout,
   Reserve,
+  SpaceInfo,
   Transfer,
 } from "@nance/nance-sdk";
+import { useOutletContext } from "@remix-run/react";
+import { format } from "date-fns";
 import { formatEther } from "ethers";
 import AddressLink from "~/components/address-link";
-import { CustomTransaction } from "~/data/nance";
+import { CustomTransaction, DateEvent } from "~/data/nance";
 import {
   extractFunctionName,
   parseFunctionAbiWithNamedArgs,
 } from "~/utils/contractFunction";
+import { scheduleOfCycle } from "~/utils/governanceCycle";
 
-export default function ActionLabel({ action }: { action: Action }) {
+export default function ActionLabel({
+  action,
+  cycleStageLengths,
+}: {
+  action: Action;
+  cycleStageLengths: number[] | undefined;
+}) {
   const comment = "// Unrecognized action, pls check";
 
   if (action.type === "Custom Transaction") {
@@ -23,7 +33,12 @@ export default function ActionLabel({ action }: { action: Action }) {
       />
     );
   } else if (action.type === "Payout") {
-    return <PayoutActionLabel payout={action.payload as Payout} />;
+    return (
+      <PayoutActionLabel
+        payout={action.payload as Payout}
+        cycleStageLengths={cycleStageLengths}
+      />
+    );
   } else if (action.type === "Transfer") {
     return <TransferActionLabel transfer={action.payload as Transfer} />;
   } else if (action.type === "Reserve") {
@@ -110,31 +125,62 @@ function TransferActionLabel({ transfer }: { transfer: Transfer }) {
   );
 }
 
-function PayoutActionLabel({ payout }: { payout: Payout }) {
+function PayoutActionLabel({
+  payout,
+  cycleStageLengths,
+}: {
+  payout: Payout;
+  cycleStageLengths: number[] | undefined;
+}) {
+  const { spaceInfo } = useOutletContext<{
+    spaceInfo: SpaceInfo;
+  }>();
+
   const address = payout.address;
   const project = payout.project;
   const label = `${payout.amountUSD} USD for ${payout.count} cycles`;
 
+  let explanationComment = `// Pay ${payout.amountUSD * payout.count} USD in total`;
+  if (cycleStageLengths) {
+    const firstSchedule = scheduleOfCycle(
+      cycleStageLengths,
+      1,
+      spaceInfo.currentEvent as unknown as DateEvent,
+    );
+    const lastSchedule = scheduleOfCycle(
+      cycleStageLengths,
+      payout.count,
+      spaceInfo.currentEvent as unknown as DateEvent,
+    );
+    explanationComment += ` from ${format(firstSchedule.start, "LLL d, yyyy")} to ${format(lastSchedule.end, "LLL d, yyyy")}`;
+  }
+
   if (!project) {
     return (
-      <p className="flex gap-x-1">
-        <span>Pay</span>
-        <AddressLink address={address} />
-        <span>{label}</span>
-      </p>
+      <div>
+        <p className="text-gray-500">{explanationComment}</p>
+        <p className="flex gap-x-1">
+          <span>Pay</span>
+          <AddressLink address={address} />
+          <span>{label}</span>
+        </p>
+      </div>
     );
   } else {
     return (
-      <p className="flex gap-x-1">
-        <span>Pay</span>
-        <a
-          href={`https://juicebox.money/v2/p/${project}`}
-          className="hover:underline"
-        >
-          {`juicebox@${project}`}
-        </a>
-        <span>{label}</span>
-      </p>
+      <div>
+        <p className="text-gray-500">{explanationComment}</p>
+        <p className="flex gap-x-1">
+          <span>Pay</span>
+          <a
+            href={`https://juicebox.money/v2/p/${project}`}
+            className="hover:underline"
+          >
+            {`juicebox@${project}`}
+          </a>
+          <span>{label}</span>
+        </p>
+      </div>
     );
   }
 }

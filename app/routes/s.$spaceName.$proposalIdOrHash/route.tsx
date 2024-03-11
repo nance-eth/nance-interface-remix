@@ -1,7 +1,7 @@
 import { useLoaderData, useRouteError } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import MarkdownWithTOC from "./markdown-with-toc";
-import { getProposal } from "~/data/nance";
+import { getProposal, getSpaceConfig } from "~/data/nance";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Fragment, useState } from "react";
 import { Listbox, Menu, Transition } from "@headlessui/react";
@@ -32,8 +32,16 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   if (!proposal) {
     throw new Response("Not Found", { status: 404 });
   }
+
+  let cycleStageLengths;
+  if (proposal.actions?.find((action) => action.type === "Payout")) {
+    const spaceConfig = await getSpaceConfig(params.spaceName);
+    cycleStageLengths = spaceConfig.cycleStageLengths;
+  }
+
   const votes = await getVotesOfProposal(proposal.voteURL);
-  return json({ proposal, votes });
+
+  return json({ proposal, votes, cycleStageLengths });
 };
 
 export function ErrorBoundary() {
@@ -94,7 +102,7 @@ const moods = [
 export default function Proposal() {
   const [selected, setSelected] = useState(moods[5]);
 
-  const { proposal, votes } = useLoaderData<typeof loader>();
+  const { proposal, votes, cycleStageLengths } = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -213,9 +221,13 @@ export default function Proposal() {
             {proposal.actions && proposal.actions.length > 0 && (
               <div className="mb-6 break-words ">
                 <p className="text-gray-400">Proposed Transactions</p>
-                <p className="mt-2 space-y-2 text-sm text-gray-500">
+                <p className="mt-2 space-y-2 text-sm">
                   {proposal.actions?.map((action) => (
-                    <ActionLabel action={action} key={action.uuid} />
+                    <ActionLabel
+                      action={action}
+                      key={action.uuid}
+                      cycleStageLengths={cycleStageLengths}
+                    />
                   ))}
                 </p>
                 <div className="mt-2 w-full border-t border-gray-300" />
