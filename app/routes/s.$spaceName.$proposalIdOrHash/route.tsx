@@ -221,7 +221,7 @@ export default function Proposal() {
             {proposal.actions && proposal.actions.length > 0 && (
               <div className="mb-6 break-words ">
                 <p className="text-gray-400">Proposed Transactions</p>
-                <p className="mt-2 space-y-2 text-sm">
+                <div className="mt-2 space-y-2 text-sm">
                   {proposal.actions?.map((action) => (
                     <ActionLabel
                       action={action}
@@ -229,7 +229,7 @@ export default function Proposal() {
                       cycleStageLengths={cycleStageLengths}
                     />
                   ))}
-                </p>
+                </div>
                 <div className="mt-2 w-full border-t border-gray-300" />
               </div>
             )}

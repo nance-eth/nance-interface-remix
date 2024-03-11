@@ -46,10 +46,10 @@ export default function ActionLabel({
   }
 
   return (
-    <p>
+    <div>
       <p className="text-gray-400">{comment}</p>
       <p>{JSON.stringify(action)}</p>
-    </p>
+    </div>
   );
 }
 
@@ -81,7 +81,7 @@ function ReserveEntryLabel({ split }: { split: JBSplitStruct }) {
 
 function ReserveActionLabel({ reserve }: { reserve: Reserve }) {
   return (
-    <p>
+    <div>
       {reserve.splits
         .sort(
           (a, b) =>
@@ -93,7 +93,7 @@ function ReserveActionLabel({ reserve }: { reserve: Reserve }) {
             split={split}
           />
         ))}
-    </p>
+    </div>
   );
 }
 
@@ -205,7 +205,7 @@ function CustomTransactionActionLabel({
   const label = `.${functionName}${value}(${args})`;
 
   return (
-    <p>
+    <div>
       <a
         href={`https://etherscan.io/address/${contract}`}
         className="hover:underline"
@@ -213,6 +213,6 @@ function CustomTransactionActionLabel({
         {contract}
       </a>
       <p className="ml-4">{label}</p>
-    </p>
+    </div>
   );
 }
