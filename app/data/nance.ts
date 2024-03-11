@@ -84,8 +84,17 @@ export type DoltConfig = {
   repo: string;
 };
 
+export const GovernanceEventName = [
+  "Temperature Check",
+  "Snapshot Vote",
+  "Execution",
+  "Delay",
+] as const;
+
+export type GovernanceEvent = (typeof GovernanceEventName)[number];
+
 export interface DateEvent {
-  title: string;
+  title: GovernanceEvent;
   start: Date;
   end: Date;
 }
