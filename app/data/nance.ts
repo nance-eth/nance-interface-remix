@@ -95,8 +95,8 @@ export type GovernanceEvent = (typeof GovernanceEventName)[number];
 
 export interface DateEvent {
   title: GovernanceEvent;
-  start: Date;
-  end: Date;
+  start: string;
+  end: string;
 }
 
 export type DialogHandlerMessageIds = {

@@ -3,15 +3,12 @@ import { PlusIcon, QueueListIcon } from "@heroicons/react/24/solid";
 import { ProposalsPacket, SpaceInfo } from "@nance/nance-sdk";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData, useOutletContext } from "@remix-run/react";
-import { addDays, format, subDays } from "date-fns";
+import { format } from "date-fns";
 import invariant from "tiny-invariant";
-import {
-  GovernanceEvent,
-  GovernanceEventName,
-  getSpaceConfig,
-} from "~/data/nance";
+import { DateEvent, getSpaceConfig } from "~/data/nance";
 import ProposalList from "./proposal-list";
 import { classNames } from "~/utils/tailwind";
+import { calculateRecent3Schedules } from "~/utils/governanceCycle";
 
 const links = [
   {
@@ -27,28 +24,6 @@ const links = [
     icon: QueueListIcon,
   },
 ];
-
-function calculateSchedules(
-  startDate: Date,
-  currentEventTitle: GovernanceEvent,
-  cycleStageLengths: number[],
-) {
-  const currentIndex = GovernanceEventName.indexOf(currentEventTitle);
-
-  const previousIndex = (currentIndex - 1 + 4) % 4;
-  const previousEventDate = subDays(
-    startDate,
-    cycleStageLengths[previousIndex],
-  );
-
-  const nextIndex = (currentIndex + 1) % 4;
-  const nextEventDate = addDays(startDate, cycleStageLengths[nextIndex]);
-  return [
-    { date: previousEventDate, eventTitle: GovernanceEventName[previousIndex] },
-    { date: startDate, eventTitle: currentEventTitle },
-    { date: nextEventDate, eventTitle: GovernanceEventName[nextIndex] },
-  ];
-}
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -71,11 +46,9 @@ export default function SpaceIndex() {
   }>();
   const { cycleStageLengths, displayName } = useLoaderData<typeof loader>();
 
-  const startDate = new Date(spaceInfo.currentEvent.start);
-  const schedules = calculateSchedules(
-    startDate,
-    spaceInfo.currentEvent.title as GovernanceEvent,
+  const schedules = calculateRecent3Schedules(
     cycleStageLengths,
+    spaceInfo.currentEvent as unknown as DateEvent,
   );
 
   return (
@@ -176,11 +149,11 @@ export default function SpaceIndex() {
                   Governance schedule
                 </h2>
                 <ol className="mt-2 divide-y divide-gray-200 text-sm leading-6 text-gray-500">
-                  {schedules.map((schedule) => (
+                  {schedules.map((schedule, index) => (
                     <li
                       className={classNames(
                         "py-4 sm:flex",
-                        schedule.date === startDate && "text-indigo-600",
+                        index === 1 && "text-indigo-600",
                       )}
                       key={schedule.date.toISOString()}
                     >
