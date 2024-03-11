@@ -1,13 +1,17 @@
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
+  ArrowLongLeftIcon,
+  ArrowLongRightIcon,
   DocumentMagnifyingGlassIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Proposal } from "@nance/nance-sdk";
-import { Link } from "@remix-run/react";
+import { Link, useSearchParams } from "@remix-run/react";
 import { formatDistanceStrict } from "date-fns";
 import AddressLink from "~/components/address-link";
 import ProposalStatusIcon from "~/components/proposal-status-icon";
+import { classNames } from "~/utils/tailwind";
+import { duplicateAndSetParams } from "~/utils/url";
 
 function getLastEditedTime(proposal: Proposal) {
   return proposal.lastEditedTime || proposal.date || "";
@@ -41,10 +45,19 @@ function EmptyProposalList() {
 export default function ProposalList({
   proposals,
   prefix,
+  hasMore,
 }: {
   proposals: Proposal[];
   prefix: string;
+  hasMore: boolean;
 }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = 8;
+  const startIndex = 1 + limit * (page - 1);
+  const endIndex = startIndex + proposals.length;
+
   if (proposals.length === 0) {
     return <EmptyProposalList />;
   }
@@ -87,7 +100,7 @@ export default function ProposalList({
                   <div className="flex-none rounded-full bg-emerald-500/20 p-1">
                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                   </div>
-                  <p className="text-xs leading-5 text-gray-500">Online</p>
+                  <p className="text-xs leading-5 text-gray-500">Voting</p>
                 </div>
               ) : (
                 <p className="mt-1 text-xs leading-5 text-gray-500">
@@ -109,6 +122,67 @@ export default function ProposalList({
           </div>
         </li>
       ))}
+
+      <li className="relative flex items-center justify-between gap-x-6 px-4 py-5 sm:px-6">
+        <div className={classNames((page > 1 || hasMore) && "hidden sm:block")}>
+          <p className="text-sm text-gray-700">
+            Showing <span className="font-medium">{startIndex}</span> to{" "}
+            <span className="font-medium">{endIndex}</span> results
+          </p>
+        </div>
+        <div
+          className={classNames(
+            "flex flex-1",
+            page === 1 || !hasMore
+              ? "justify-end"
+              : "justify-between sm:justify-end",
+          )}
+        >
+          {page > 1 && (
+            <Link
+              to={{
+                search:
+                  "?" +
+                  duplicateAndSetParams(
+                    searchParams,
+                    "page",
+                    (page - 1).toString(),
+                  ).toString(),
+              }}
+              prefetch="intent"
+              className="relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+            >
+              <ArrowLongLeftIcon
+                className="mr-3 h-5 w-5 text-gray-400"
+                aria-hidden="true"
+              />
+              Previous
+            </Link>
+          )}
+
+          {hasMore && (
+            <Link
+              to={{
+                search:
+                  "?" +
+                  duplicateAndSetParams(
+                    searchParams,
+                    "page",
+                    (page + 1).toString(),
+                  ).toString(),
+              }}
+              prefetch="intent"
+              className="relative ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+            >
+              Next
+              <ArrowLongRightIcon
+                className="ml-3 h-5 w-5 text-gray-400"
+                aria-hidden="true"
+              />
+            </Link>
+          )}
+        </div>
+      </li>
     </ul>
   );
 }

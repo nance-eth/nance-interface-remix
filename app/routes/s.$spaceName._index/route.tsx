@@ -155,6 +155,7 @@ export default function SpaceIndex() {
           <ProposalList
             proposals={proposalsPacket.proposals}
             prefix={proposalsPacket.proposalInfo.proposalIdPrefix}
+            hasMore={proposalsPacket.hasMore}
           />
         </main>
 

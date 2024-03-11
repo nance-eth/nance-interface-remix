@@ -38,9 +38,9 @@ const userNavigation = [
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
-  const searchMode = url.searchParams.size > 0;
   const keyword = url.searchParams.get("keyword");
   const cycle = url.searchParams.get("cycle");
+  const searchMode = (keyword || cycle) !== null;
   const page = parseInt(url.searchParams.get("page") || "1");
 
   invariant(params.spaceName, "Missing spaceName param");
@@ -60,7 +60,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const proposalsPacket = await getProposals({
     space: params.spaceName,
     cycle: cycle || (searchMode ? "All" : activeCycle),
-    limit: 10,
+    limit: 8,
     keyword,
     page,
   });
