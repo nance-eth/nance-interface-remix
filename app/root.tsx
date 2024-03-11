@@ -6,10 +6,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  json,
+  useLoaderData,
 } from "@remix-run/react";
 
 import tailwindStylesHref from "./tailwind.css";
 import favicon from "./images/favicon.ico";
+import { Web3Provider } from "./web3-provider";
 
 export const links: LinksFunction = () => [
   {
@@ -20,7 +23,15 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesHref },
 ];
 
+export async function loader() {
+  return json({
+    wcProjectId: process.env.WALLETCONNECT_PROJECT_ID,
+  });
+}
+
 export default function App() {
+  const { wcProjectId } = useLoaderData<typeof loader>();
+
   return (
     <html lang="en">
       <head>
@@ -30,7 +41,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
+        <Web3Provider wcProjectId={wcProjectId}>
+          <Outlet />
+        </Web3Provider>
 
         <ScrollRestoration />
         <Scripts />

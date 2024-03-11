@@ -30,7 +30,11 @@ module.exports = {
     "is-plain-obj",
     "trough",
     "@ungap/structured-clone",
+    /^wagmi.*/,
+    /^@wagmi.*/,
+    "connectkit",
   ],
   ignoredRouteFiles: ["**/.*"],
   serverModuleFormat: "cjs",
+  browserNodeBuiltinsPolyfill: { modules: { buffer: true, events: true } },
 };
