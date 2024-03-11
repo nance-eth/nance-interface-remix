@@ -17,7 +17,12 @@ import {
 import { classNames } from "~/utils/tailwind";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { getProposals, getSpace } from "~/data/nance";
+import {
+  GovernanceEvent,
+  GovernanceEventName,
+  getProposals,
+  getSpace,
+} from "~/data/nance";
 
 const user = {
   name: "Tom Cook",
@@ -33,7 +38,9 @@ const userNavigation = [
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
+  const searchMode = url.searchParams.size > 0;
   const keyword = url.searchParams.get("keyword");
+  const cycle = url.searchParams.get("cycle");
   const page = parseInt(url.searchParams.get("page") || "1");
 
   invariant(params.spaceName, "Missing spaceName param");
@@ -41,9 +48,18 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   if (!spaceInfo) {
     throw new Response("Not Found", { status: 404 });
   }
+
+  // Display next cycle in Active tab if we are in last stages of current cycle
+  const noVotingNeedThisCycle = GovernanceEventName.slice(2).includes(
+    spaceInfo.currentEvent.title as GovernanceEvent,
+  );
+  const activeCycle = (
+    noVotingNeedThisCycle ? spaceInfo.currentCycle + 1 : spaceInfo.currentCycle
+  ).toString();
+
   const proposalsPacket = await getProposals({
     space: params.spaceName,
-    cycle: "All",
+    cycle: cycle || (searchMode ? "All" : activeCycle),
     limit: 10,
     keyword,
     page,
@@ -52,11 +68,11 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     throw new Response("Not Found", { status: 404 });
   }
 
-  return { spaceInfo, proposalsPacket, keyword, page };
+  return { spaceInfo, proposalsPacket, keyword, page, searchMode };
 };
 
 export default function SpaceLayout() {
-  const { spaceInfo, proposalsPacket, keyword, page } =
+  const { spaceInfo, proposalsPacket, keyword, page, searchMode } =
     useLoaderData<typeof loader>();
   const navigation = useNavigation();
 
@@ -77,6 +93,14 @@ export default function SpaceLayout() {
       window.removeEventListener("keydown", keyDownHandler);
     };
   }, []);
+
+  // Sync input state with searchParams
+  useEffect(() => {
+    const searchField = document.getElementById("keyword");
+    if (searchField instanceof HTMLInputElement) {
+      searchField.value = keyword || "";
+    }
+  }, [keyword]);
 
   return (
     <>
@@ -323,7 +347,7 @@ export default function SpaceLayout() {
 
         <main>
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-            <Outlet context={{ spaceInfo, proposalsPacket }} />
+            <Outlet context={{ spaceInfo, proposalsPacket, searchMode }} />
           </div>
         </main>
       </div>
