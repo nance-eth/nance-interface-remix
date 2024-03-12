@@ -1,10 +1,11 @@
 import { LinksFunction } from "@remix-run/node";
-import { Suspense, lazy, useRef } from "react";
+import { Suspense, useRef } from "react";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import type { Editor } from "@toast-ui/react-editor";
+import MarkdownEditor from "~/components/Markdown/MarkdownEditor.client";
 import "@nance/nance-editor/lib/editor.css";
 
-const MDEditor = lazy(() => import("~/components/Markdown/MarkdownEditor"));
+// const MarkdownEditor = lazy(() => import("~/components/Markdown/MarkdownEditor.client"));
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref
@@ -17,9 +18,9 @@ export default function ProposalEditor() {
   return (
     <div>
       <Suspense fallback="Loading...">
-        <MDEditor
+        <MarkdownEditor
           parentRef={editorRef}
-          // initialValue="Hello, world!"
+          initialValue="Hello, world!"
           onEditorChange={(md) => { console.log(md); }}
         />
       </Suspense>

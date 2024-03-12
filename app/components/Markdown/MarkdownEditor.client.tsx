@@ -3,7 +3,7 @@ import { Editor } from "@toast-ui/react-editor";
 import { Loading } from "./sub/LoadingBar";
 import { drop2AttachMarkdown, uploadBlob2IPFS } from "./utils";
 
-export default function MarkdownEditor({
+export default function MarkdownEditor ({
   parentRef,
   onEditorChange,
   initialValue,
@@ -20,7 +20,7 @@ export default function MarkdownEditor({
   } = Loading();
 
   drop2AttachMarkdown(parentRef);
-
+  
   return (
     <div>
       <LoadingBar />
