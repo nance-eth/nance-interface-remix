@@ -1,4 +1,4 @@
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -23,14 +23,17 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesHref },
 ];
 
-export async function loader() {
+export async function loader({ request }: LoaderFunctionArgs) {
+  const cookieHeader = request.headers.get("Cookie");
+  const wcProjectId = process.env.WALLETCONNECT_PROJECT_ID;
   return json({
-    wcProjectId: process.env.WALLETCONNECT_PROJECT_ID,
+    wcProjectId,
+    cookieHeader,
   });
 }
 
 export default function App() {
-  const { wcProjectId } = useLoaderData<typeof loader>();
+  const { wcProjectId, cookieHeader } = useLoaderData<typeof loader>();
 
   return (
     <html lang="en">
@@ -41,7 +44,7 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Web3Provider wcProjectId={wcProjectId}>
+        <Web3Provider wcProjectId={wcProjectId} cookieHeader={cookieHeader}>
           <Outlet />
         </Web3Provider>
 
