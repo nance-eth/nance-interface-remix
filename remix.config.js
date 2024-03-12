@@ -33,6 +33,7 @@ module.exports = {
     /^wagmi.*/,
     /^@wagmi.*/,
     "connectkit",
+    /^toast-ui.*/,
   ],
   ignoredRouteFiles: ["**/.*"],
   serverModuleFormat: "cjs",
