@@ -34,6 +34,7 @@ module.exports = {
     /^@wagmi.*/,
     "connectkit",
     /^@toast-ui.*/,
+    "@nance/nance-editor"
   ],
   ignoredRouteFiles: ["**/.*"],
   serverModuleFormat: "cjs",
