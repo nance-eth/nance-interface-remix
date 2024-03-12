@@ -13,8 +13,9 @@
   "dependencies": {
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
-    "@nance/nance-editor": "file:../nance-sdk/packages/editor/",
+    "@nance/nance-editor": "^1.1.0",
     "@nance/nance-sdk": "^1.0.1",
+    "@remix-run/css-bundle": "^2.8.1",
     "@remix-run/node": "^2.6.0",
     "@remix-run/react": "^2.6.0",
     "@remix-run/serve": "^2.6.0",

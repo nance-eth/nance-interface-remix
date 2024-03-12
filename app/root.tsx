@@ -9,6 +9,7 @@ import {
   json,
   useLoaderData,
 } from "@remix-run/react";
+import { cssBundleHref } from "@remix-run/css-bundle";
 
 import tailwindStylesHref from "./tailwind.css";
 import favicon from "./images/favicon.ico";
@@ -20,6 +21,9 @@ export const links: LinksFunction = () => [
     href: favicon,
     type: "image/png",
   },
+  ...(cssBundleHref
+    ? [{ rel: "stylesheet", href: cssBundleHref }]
+    : []),
   { rel: "stylesheet", href: tailwindStylesHref },
 ];
 
