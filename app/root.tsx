@@ -1,4 +1,4 @@
-import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
+import type { LinksFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -13,7 +13,6 @@ import {
 import tailwindStylesHref from "./tailwind.css";
 import favicon from "./images/favicon.ico";
 import { Web3Provider } from "./web3-provider";
-import { ClientOnly } from "remix-utils/client-only";
 
 export const links: LinksFunction = () => [
   {
@@ -24,10 +23,9 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStylesHref },
 ];
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const wcProjectId = process.env.WALLETCONNECT_PROJECT_ID;
+export async function loader() {
   return json({
-    wcProjectId,
+    wcProjectId: process.env.WALLETCONNECT_PROJECT_ID,
   });
 }
 
@@ -43,13 +41,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <ClientOnly fallback={<Outlet />}>
-          {() => (
-            <Web3Provider wcProjectId={wcProjectId}>
-              <Outlet />
-            </Web3Provider>
-          )}
-        </ClientOnly>
+        <Web3Provider wcProjectId={wcProjectId}>
+          <Outlet />
+        </Web3Provider>
 
         <ScrollRestoration />
         <Scripts />
