@@ -24,6 +24,7 @@ import {
   getSpace,
 } from "~/data/nance";
 import { ConnectKitButton } from "connectkit";
+import { ClientOnly } from "remix-utils/client-only";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -219,7 +220,9 @@ export default function SpaceLayout() {
                         </button>
 
                         <div className="relative ml-3 flex-shrink-0">
-                          <ConnectKitButton />
+                          <ClientOnly fallback={<p>wallet</p>}>
+                            {() => <ConnectKitButton />}
+                          </ClientOnly>
                         </div>
                       </div>
                     </div>
@@ -250,7 +253,9 @@ export default function SpaceLayout() {
                   </div>
                   <div className="border-t border-indigo-700 pb-3 pt-4">
                     <div className="flex items-center px-5">
-                      <ConnectKitButton />
+                      <ClientOnly fallback={<p>wallet</p>}>
+                        {() => <ConnectKitButton />}
+                      </ClientOnly>
                       <button
                         type="button"
                         className="relative ml-auto flex-shrink-0 rounded-full bg-indigo-600 p-1 text-indigo-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
