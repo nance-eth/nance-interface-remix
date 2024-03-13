@@ -1,5 +1,6 @@
+import { useRef } from "react";
 import { LinksFunction } from "@remix-run/node";
-import { Suspense, useRef } from "react";
+import { ClientOnly } from "remix-utils/client-only";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import type { Editor } from "@toast-ui/react-editor";
 import MarkdownEditor from "~/components/Markdown/MarkdownEditor.client";
@@ -14,12 +15,12 @@ export const links: LinksFunction = () => [
 export default function ProposalEditor() {
   const editorRef = useRef<Editor>(null);
   return (
-    <Suspense fallback={"Loading..."}>
-      <MarkdownEditor
+    <ClientOnly fallback={"Loading..."}>
+      {() => <MarkdownEditor
         parentRef={editorRef}
         initialValue="Hello, world!"
         onEditorChange={(md) => { console.log(md); }}
-      />
-    </Suspense>
+      />}
+    </ClientOnly>
   );
 }

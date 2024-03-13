@@ -12,6 +12,8 @@ export default function MarkdownEditor ({
   onEditorChange?: (md: string) => void;
   initialValue?: string;
 }) {
+  if (window === undefined) return null;
+  
   // setup loading bar
   const {
     Component: LoadingBar,
