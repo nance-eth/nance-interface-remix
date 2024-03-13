@@ -33,6 +33,7 @@ module.exports = {
     /^wagmi.*/,
     /^@wagmi.*/,
     "connectkit",
+    /^remix-utils.*/,
   ],
   ignoredRouteFiles: ["**/.*"],
   serverModuleFormat: "cjs",
