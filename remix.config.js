@@ -33,7 +33,6 @@ module.exports = {
     /^wagmi.*/,
     /^@wagmi.*/,
     "connectkit",
-    /^@toast-ui.*/,
     "@nance/nance-editor",
     /^remix-utils.*/,
   ],

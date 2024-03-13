@@ -1472,13 +1472,12 @@
     "@motionone/dom" "^10.16.4"
     tslib "^2.3.1"
 
-"@nance/nance-editor@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@nance/nance-editor/-/nance-editor-1.1.0.tgz#414438adf9babeb313076dfcf1fa15a6a692c1b4"
-  integrity sha512-p2H3P3FI5dM2Sce1mMsdTNXm8OiUPz74speemCp3YqZwiunaNNSAd9GADliL3qbaDGgASjURUdbPPD/PamqKrg==
+"@nance/nance-editor@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@nance/nance-editor/-/nance-editor-1.2.0.tgz#11f829a595c02e9487dea04ac6acd75f3d8b6a30"
+  integrity sha512-Xmluu/TywFZQK9Xbamfw8++v2vC9UzpPr6wsP9IzLAiJc2vUxaBh1MWrhLX9PByHH72R7LVYPl/oqzDrFoLIlA==
   dependencies:
     "@toast-ui/react-editor" "^3.2.3"
-    react "^18.2.0"
 
 "@nance/nance-sdk@^1.0.1":
   version "1.0.1"
