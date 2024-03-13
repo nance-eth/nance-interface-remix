@@ -11,15 +11,21 @@ export type ProposalType =
   | "weighted"
   | "basic";
 
-interface CastVoteArgs {
+export interface CastVoteArgs {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   signTypedDataAsyncFunc: (data: any) => Promise<Hex>;
   address: Address;
-  choice: number | number[] | string;
+  choice:
+    | number
+    | number[]
+    | string
+    | {
+        [key: string]: number;
+      };
   reason: string | undefined;
-  snapshotSpace: string;
-  snapshotProposal: string;
-  votingType: ProposalType;
+  space: string;
+  proposal: string;
+  type: ProposalType;
 }
 
 export async function castVote({
@@ -27,10 +33,10 @@ export async function castVote({
   address,
   choice,
   reason,
-  snapshotSpace,
-  snapshotProposal,
-  votingType,
-}: CastVoteArgs): Promise<{ value: unknown; error: string | undefined }> {
+  space,
+  proposal,
+  type,
+}: CastVoteArgs) {
   const client = new snapshot.Client712(hub);
 
   // mocking the web3 just for snapshot.js
@@ -52,19 +58,14 @@ export async function castVote({
     },
   };
 
-  try {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return client.vote(web3 as any, address, {
+    space,
+    proposal,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const receipt = await client.vote(web3 as any, address, {
-      space: snapshotSpace,
-      proposal: snapshotProposal,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      type: votingType,
-      choice: choice,
-      reason,
-      app: "nance.app",
-    });
-    return { value: receipt, error: undefined };
-  } catch (e: Error) {
-    return { value: undefined, error: e.message };
-  }
+    type,
+    choice: choice,
+    reason,
+    app: "nance.app",
+  });
 }

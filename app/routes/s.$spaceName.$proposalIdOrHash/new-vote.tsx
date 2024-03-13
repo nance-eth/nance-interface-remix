@@ -1,11 +1,11 @@
-import { FormEvent, useState } from "react";
-import { useAccount, useSignTypedData } from "wagmi";
-import { castVote } from "~/utils/signing";
+import { FormEvent } from "react";
+import { useAccount } from "wagmi";
 import { z } from "zod";
+import useCastVote from "~/hooks/snapshot-cast-vote";
 
 const VoteFormSchema = z.object({
   reason: z.string(),
-  choice: z.number(),
+  //choice: z.number(),
 });
 
 export function NewVote({
@@ -16,42 +16,28 @@ export function NewVote({
   proposalSnapshotId: string;
 }) {
   const account = useAccount();
-  const { signTypedDataAsync } = useSignTypedData();
-  const [error, setError] = useState<string>();
+  const { trigger, value, loading, error } = useCastVote();
+
+  console.debug("account", account.status, account);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(undefined);
 
-    // const data = Object.fromEntries(new FormData(event.currentTarget));
-    // const result = VoteFormSchema.safeParse(data);
-    // if (!result.success) {
-    //   // handle error then return
-    //   console.debug(result.error);
-    //   setError(result.error.issues[0].message);
-    //   return;
-    // }
-
-    console.debug("account", account);
-    if (account.status === "connected") {
-      setError(undefined);
-      const { value, error } = await castVote({
-        signTypedDataAsyncFunc: signTypedDataAsync,
-        address: account.address,
-        choice: 1, //result.data.choice,
-        reason: "123", //result.data.reason,
-        snapshotSpace,
-        snapshotProposal: proposalSnapshotId,
-        votingType: "basic",
-      });
-      if (error) {
-        setError(error);
-      } else {
-        console.debug("success with signing", value);
-      }
-    } else {
-      setError("wallet not connected");
+    const data = Object.fromEntries(new FormData(event.currentTarget));
+    const result = VoteFormSchema.safeParse(data);
+    if (!result.success) {
+      // handle error then return
+      console.debug("zod newVote", data, result);
+      return;
     }
+
+    trigger({
+      space: snapshotSpace,
+      proposal: proposalSnapshotId,
+      choice: 1,
+      reason: result.data.reason,
+      type: "basic",
+    });
   }
 
   return (
