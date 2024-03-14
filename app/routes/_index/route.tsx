@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getAllSpaces } from "~/data/nance";
 import HeroSection, { SimpleSpaceEntry } from "./hero-section";
+import { getAllSpaces } from "@nance/nance-sdk";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const spaces = await getAllSpaces();

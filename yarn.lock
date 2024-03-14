@@ -1484,10 +1484,10 @@
   dependencies:
     "@toast-ui/react-editor" "^3.2.3"
 
-"@nance/nance-sdk@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@nance/nance-sdk/-/nance-sdk-1.0.1.tgz#90e05fcf92da207fe16c382424c419d05072371e"
-  integrity sha512-xADXkTVvvFw5tSdS3WvWV5o4Kujife66XFSV8+lxQRIij+4XeXXiOJ7ZP/SCfRY3bN2HgNSKFkzpiGJpbsuq0A==
+"@nance/nance-sdk@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@nance/nance-sdk/-/nance-sdk-1.0.3.tgz#b9c8699bae94958e13fa68bdfd806c9ad409c2ea"
+  integrity sha512-pcA9hn4rsB/7JXoMwtaBudiLKGe/hjWg+YGttiXQG9jqMWr6tkyTrRlvNG8Yw9wkMDAaMCw52Fh9NY6BiFx6zw==
   dependencies:
     "@ethersproject/providers" "^5.6.8"
     "@jigglyjams/juice-sdk-v3" "^3.2.2-alpha"

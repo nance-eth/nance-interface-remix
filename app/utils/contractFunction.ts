@@ -1,5 +1,5 @@
+import { CustomTransactionArg } from "@nance/nance-sdk";
 import { Interface } from "ethers";
-import { CustomTransactionArg } from "~/data/nance";
 
 // function abc(uint256 _param) => abc
 export function extractFunctionName(str: string) {

@@ -17,14 +17,14 @@ import {
 import { classNames } from "~/utils/tailwind";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
+import { ConnectKitButton } from "connectkit";
+import { ClientOnly } from "remix-utils/client-only";
 import {
   GovernanceEvent,
   GovernanceEventName,
   getProposals,
   getSpace,
-} from "~/data/nance";
-import { ConnectKitButton } from "connectkit";
-import { ClientOnly } from "remix-utils/client-only";
+} from "@nance/nance-sdk";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);

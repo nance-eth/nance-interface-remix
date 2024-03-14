@@ -1,5 +1,6 @@
 import {
   Action,
+  CustomTransaction,
   JBSplitStruct,
   Payout,
   Reserve,
@@ -10,7 +11,6 @@ import { useOutletContext } from "@remix-run/react";
 import { format } from "date-fns";
 import { formatEther } from "ethers";
 import AddressLink from "~/components/address-link";
-import { CustomTransaction, DateEvent } from "~/data/nance";
 import {
   extractFunctionName,
   parseFunctionAbiWithNamedArgs,

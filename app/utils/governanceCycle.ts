@@ -1,5 +1,5 @@
+import { DateEvent, GovernanceEventName } from "@nance/nance-sdk";
 import { addDays, subDays } from "date-fns";
-import { DateEvent, GovernanceEventName } from "~/data/nance";
 
 /**
  * Calculate schedules of recent three event based on current event

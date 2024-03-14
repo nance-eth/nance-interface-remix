@@ -1,7 +1,6 @@
 import { useLoaderData, useRouteError } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import MarkdownWithTOC from "./markdown-with-toc";
-import { getProposal, getSpaceConfig } from "~/data/nance";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
@@ -13,6 +12,7 @@ import getVotesOfProposal from "~/data/snapshot";
 import { formatDistanceStrict, fromUnixTime } from "date-fns";
 import { NewVote } from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
+import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
