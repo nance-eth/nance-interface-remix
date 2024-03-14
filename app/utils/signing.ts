@@ -28,6 +28,16 @@ export interface CastVoteArgs {
   type: ProposalType;
 }
 
+type SnapshotResponse = {
+  id: string;
+  // https://snapshot.4everland.link/ipfs/<ipfs>
+  ipfs: string;
+  relayer: {
+    address: string;
+    receipt: string;
+  };
+};
+
 export async function castVote({
   signTypedDataAsyncFunc,
   address,
@@ -36,7 +46,7 @@ export async function castVote({
   space,
   proposal,
   type,
-}: CastVoteArgs) {
+}: CastVoteArgs): Promise<SnapshotResponse> {
   const client = new snapshot.Client712(hub);
 
   // mocking the web3 just for snapshot.js
@@ -59,7 +69,7 @@ export async function castVote({
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return client.vote(web3 as any, address, {
+  const res = await client.vote(web3 as any, address, {
     space,
     proposal,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,4 +78,5 @@ export async function castVote({
     reason,
     app: "nance.app",
   });
+  return res as SnapshotResponse;
 }

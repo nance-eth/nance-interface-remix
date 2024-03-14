@@ -2,6 +2,8 @@ import { FormEvent } from "react";
 import { useAccount } from "wagmi";
 import { z } from "zod";
 import useCastVote from "~/hooks/snapshot-cast-vote";
+import toast from "react-hot-toast";
+import { useRevalidator } from "@remix-run/react";
 
 const VoteFormSchema = z.object({
   reason: z.string(),
@@ -16,9 +18,8 @@ export function NewVote({
   proposalSnapshotId: string;
 }) {
   const account = useAccount();
-  const { trigger, value, loading, error } = useCastVote();
-
-  console.debug("account", account.status, account);
+  const { trigger } = useCastVote();
+  const revalidator = useRevalidator();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,13 +32,25 @@ export function NewVote({
       return;
     }
 
-    trigger({
-      space: snapshotSpace,
-      proposal: proposalSnapshotId,
-      choice: 1,
-      reason: result.data.reason,
-      type: "basic",
-    });
+    if (account.status !== "connected") {
+      toast.error("Account not connected, " + account.status);
+      return;
+    }
+
+    toast.promise(
+      trigger({
+        space: snapshotSpace,
+        proposal: proposalSnapshotId,
+        choice: 1,
+        reason: result.data.reason,
+        type: "basic",
+      }).then((res) => revalidator.revalidate()),
+      {
+        loading: "Submiting...",
+        success: "Voted!",
+        error: (err) => `Failed due to ${err.toString()}`,
+      },
+    );
   }
 
   return (
@@ -88,7 +101,6 @@ export function NewVote({
           </button>
         </div>
       </form>
-      {error && <p className="text-red-500">Error: {error}</p>}
     </div>
   );
 }

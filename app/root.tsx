@@ -15,6 +15,7 @@ import favicon from "./images/favicon.ico";
 import { Web3Provider } from "./web3-provider";
 import { ClientOnly } from "remix-utils/client-only";
 import ErrorPage from "./components/error-page";
+import { Toaster } from "react-hot-toast";
 
 export const links: LinksFunction = () => [
   {
@@ -51,6 +52,7 @@ export default function App() {
             </Web3Provider>
           )}
         </ClientOnly>
+        <Toaster position="top-right" />
 
         <ScrollRestoration />
         <Scripts />
