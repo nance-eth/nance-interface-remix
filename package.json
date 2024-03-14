@@ -2,7 +2,6 @@
   "name": "nance-interface-remix",
   "private": true,
   "sideEffects": false,
-  "module": "esnext",
   "scripts": {
     "build": "remix build",
     "dev": "remix dev --manual",
