@@ -8,6 +8,7 @@ import invariant from "tiny-invariant";
 import ProposalList from "./proposal-list";
 import { classNames } from "~/utils/tailwind";
 import { calculateRecent3Schedules } from "~/utils/governanceCycle";
+import ErrorPage from "~/components/error-page";
 
 const links = [
   {
@@ -28,7 +29,10 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
   const spaceConfig = await getSpaceConfig(params.spaceName);
   if (!spaceConfig) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response("Space Not Found", {
+      status: 404,
+      statusText: "Space Not Found",
+    });
   }
 
   return {
@@ -36,6 +40,10 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     displayName: spaceConfig.displayName,
   };
 };
+
+export function ErrorBoundary() {
+  return <ErrorPage />;
+}
 
 export default function SpaceIndex() {
   const { spaceInfo, proposalsPacket, searchMode } = useOutletContext<{

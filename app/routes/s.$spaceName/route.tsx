@@ -25,6 +25,7 @@ import {
   getProposals,
   getSpace,
 } from "@nance/nance-sdk";
+import ErrorPage from "~/components/error-page";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -36,7 +37,10 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
   const spaceInfo = await getSpace(params.spaceName);
   if (!spaceInfo) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response("Space Not Found", {
+      status: 404,
+      statusText: "Space Not Found",
+    });
   }
 
   // Display next cycle in Active tab if we are in last stages of current cycle
@@ -60,6 +64,10 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   return { spaceInfo, proposalsPacket, keyword, page, searchMode };
 };
+
+export function ErrorBoundary() {
+  return <ErrorPage />;
+}
 
 export default function SpaceLayout() {
   const { spaceInfo, proposalsPacket, keyword, page, searchMode } =
