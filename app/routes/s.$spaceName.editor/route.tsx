@@ -8,29 +8,34 @@ import { useLoaderData } from "@remix-run/react";
 import "@nance/nance-editor/lib/editor.css";
 import { getInfuraAuth } from "~/utils/infura";
 export const links: LinksFunction = () => [
-  ...(cssBundleHref
-    ? [{ rel: "stylesheet", href: cssBundleHref }]
-    : []),
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
 export async function loader() {
   return json({
     IPFS_GATEWAY: process.env.IPFS_GATEWAY,
-    IPFS_ID: process.env.PUBLIC_INFURA_IPFS_ID,
-    IPFS_SECRET: process.env.PUBLIC_INFURA_IPFS_SECRET,
+    IPFS_ID: process.env.INFURA_IPFS_ID,
+    IPFS_SECRET: process.env.INFURA_IPFS_SECRET,
   });
 }
 
 export default function ProposalEditor() {
   const { IPFS_GATEWAY, IPFS_ID, IPFS_SECRET } = useLoaderData<typeof loader>();
-  const fileUploadIPFS = IPFS_GATEWAY && IPFS_ID && IPFS_SECRET ? {
-    gateway: IPFS_GATEWAY,
-    auth: getInfuraAuth(IPFS_ID, IPFS_SECRET),
-  } : undefined;
 
   return (
     <ClientOnly fallback={"Loading..."}>
-      {() => <NanceEditor fileUploadIPFS={fileUploadIPFS} />}
+      {() => (
+        <NanceEditor
+          fileUploadIPFS={
+            IPFS_GATEWAY && IPFS_ID && IPFS_SECRET
+              ? {
+                  gateway: IPFS_GATEWAY,
+                  auth: getInfuraAuth(IPFS_ID, IPFS_SECRET),
+                }
+              : undefined
+          }
+        />
+      )}
     </ClientOnly>
   );
 }
