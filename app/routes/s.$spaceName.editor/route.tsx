@@ -6,7 +6,6 @@ import { useLoaderData } from "@remix-run/react";
 
 // css for the Nance editor
 import "@nance/nance-editor/lib/editor.css";
-import { getInfuraAuth } from "~/utils/infura";
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
@@ -30,7 +29,7 @@ export default function ProposalEditor() {
             IPFS_GATEWAY && IPFS_ID && IPFS_SECRET
               ? {
                   gateway: IPFS_GATEWAY,
-                  auth: getInfuraAuth(IPFS_ID, IPFS_SECRET),
+                  auth: `Basic ${Buffer.from(`${IPFS_ID}:${IPFS_SECRET}`).toString("base64")}`,
                 }
               : undefined
           }
