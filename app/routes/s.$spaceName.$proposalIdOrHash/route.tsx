@@ -10,7 +10,7 @@ import ActionLabel from "./action-label";
 import AddressLink from "~/components/address-link";
 import getVotesOfProposal from "~/data/snapshot";
 import { formatDistanceStrict, fromUnixTime } from "date-fns";
-import { NewVote } from "./new-vote";
+import NewVote from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
 import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
 import ErrorPage from "~/components/error-page";

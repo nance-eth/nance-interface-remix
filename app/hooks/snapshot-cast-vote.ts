@@ -20,7 +20,7 @@ export default function useCastVote() {
           address,
         });
       } else {
-        throw new Error("no wallet connected");
+        throw new Error("wallet " + status);
       }
     },
     [address, signTypedDataAsync, status],

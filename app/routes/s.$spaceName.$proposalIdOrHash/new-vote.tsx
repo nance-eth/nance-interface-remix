@@ -10,7 +10,7 @@ const VoteFormSchema = z.object({
   //choice: z.number(),
 });
 
-export function NewVote({
+export default function NewVote({
   snapshotSpace,
   proposalSnapshotId,
 }: {
@@ -32,11 +32,6 @@ export function NewVote({
       return;
     }
 
-    if (account.status !== "connected") {
-      toast.error("Account not connected, " + account.status);
-      return;
-    }
-
     toast.promise(
       trigger({
         space: snapshotSpace,
@@ -48,7 +43,7 @@ export function NewVote({
       {
         loading: "Submiting...",
         success: "Voted!",
-        error: (err) => `Failed due to ${err.toString()}`,
+        error: (err) => `${err?.error_description || err.toString()}`,
       },
     );
   }
