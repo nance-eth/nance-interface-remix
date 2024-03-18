@@ -51,9 +51,9 @@ export interface SnapshotVote {
 
 export default async function getVotesOfProposal(
   id: string,
+  first: number = 10,
   skip: number = 0,
   orderBy: "created" | "vp" = "created",
-  first: number = 10,
 ) {
   if (!id) {
     return [];

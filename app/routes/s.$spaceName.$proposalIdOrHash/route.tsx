@@ -9,7 +9,7 @@ import { classNames } from "~/utils/tailwind";
 import ActionLabel from "./action-label";
 import AddressLink from "~/components/address-link";
 import getVotesOfProposal from "~/data/snapshot";
-import { formatDistanceStrict, fromUnixTime } from "date-fns";
+import { format, formatDistanceStrict, fromUnixTime } from "date-fns";
 import NewVote from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
 import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
@@ -36,7 +36,8 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     cycleStageLengths = spaceConfig.cycleStageLengths;
   }
 
-  const votes = await getVotesOfProposal(proposal.voteURL);
+  // display whole votes list?
+  const votes = await getVotesOfProposal(proposal.voteURL, 1000);
 
   return json({ proposal, votes, cycleStageLengths });
 };
@@ -76,13 +77,21 @@ export default function Proposal() {
                 className="h-16 w-16 flex-none rounded-full ring-1 ring-gray-900/10"
               />
               <h1>
-                <p className="mt-1 flex gap-x-1 text-xs leading-5 text-gray-500">
-                  <span>{`GC-${proposal.governanceCycle}, ${proposal.proposalId} - by`}</span>
-                  <AddressLink address={proposal.authorAddress} />
-                </p>
-                <div className="mt-1 text-base font-semibold leading-6 text-gray-900">
-                  {proposal.title}
+                <div className="text-xl font-semibold leading-6 text-gray-900">
+                  {`${proposal.proposalId} ${proposal.title}`}
                 </div>
+
+                <p className="mt-1 flex gap-x-1 text-xs leading-5 text-gray-500">
+                  <span>by</span>
+                  <AddressLink address={proposal.authorAddress} />
+                  {proposal.coauthors?.map((addr) => (
+                    <AddressLink key={addr} address={addr} />
+                  ))}
+                </p>
+
+                <p className="flex gap-x-1 text-xs leading-5 text-gray-500">
+                  {`on ${format(proposal.lastEditedTime || proposal.createdTime || "", "LLL d, yyyy")} (GC-${proposal.governanceCycle})`}
+                </p>
               </h1>
             </div>
             <div className="flex items-center gap-x-4 sm:gap-x-6">
@@ -167,11 +176,7 @@ export default function Proposal() {
                 <p className="text-gray-400">Proposed Transactions</p>
                 <div className="mt-2 space-y-2 text-sm">
                   {proposal.actions?.map((action) => (
-                    <ActionLabel
-                      action={action}
-                      key={action.uuid}
-                      cycleStageLengths={cycleStageLengths}
-                    />
+                    <ActionLabel action={action} key={action.uuid} />
                   ))}
                 </div>
                 <div className="mt-2 w-full border-t border-gray-300" />

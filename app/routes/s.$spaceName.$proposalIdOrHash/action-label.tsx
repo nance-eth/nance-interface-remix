@@ -7,7 +7,7 @@ import {
   SpaceInfo,
   Transfer,
 } from "@nance/nance-sdk";
-import { useOutletContext } from "@remix-run/react";
+import { useLoaderData, useOutletContext } from "@remix-run/react";
 import { format } from "date-fns";
 import { formatEther } from "ethers";
 import AddressLink from "~/components/address-link";
@@ -16,14 +16,9 @@ import {
   parseFunctionAbiWithNamedArgs,
 } from "~/utils/contractFunction";
 import { scheduleOfCycle } from "~/utils/governanceCycle";
+import { loader } from "./route";
 
-export default function ActionLabel({
-  action,
-  cycleStageLengths,
-}: {
-  action: Action;
-  cycleStageLengths: number[] | undefined;
-}) {
+export default function ActionLabel({ action }: { action: Action }) {
   const comment = "// Unrecognized action, pls check";
 
   if (action.type === "Custom Transaction") {
@@ -33,12 +28,7 @@ export default function ActionLabel({
       />
     );
   } else if (action.type === "Payout") {
-    return (
-      <PayoutActionLabel
-        payout={action.payload as Payout}
-        cycleStageLengths={cycleStageLengths}
-      />
-    );
+    return <PayoutActionLabel payout={action.payload as Payout} />;
   } else if (action.type === "Transfer") {
     return <TransferActionLabel transfer={action.payload as Transfer} />;
   } else if (action.type === "Reserve") {
@@ -125,16 +115,11 @@ function TransferActionLabel({ transfer }: { transfer: Transfer }) {
   );
 }
 
-function PayoutActionLabel({
-  payout,
-  cycleStageLengths,
-}: {
-  payout: Payout;
-  cycleStageLengths: number[] | undefined;
-}) {
+function PayoutActionLabel({ payout }: { payout: Payout }) {
   const { spaceInfo } = useOutletContext<{
     spaceInfo: SpaceInfo;
   }>();
+  const { proposal, cycleStageLengths } = useLoaderData<typeof loader>();
 
   const address = payout.address;
   const project = payout.project;
@@ -142,15 +127,17 @@ function PayoutActionLabel({
 
   let explanationComment = `// Pay ${payout.amountUSD * payout.count} USD in total`;
   if (cycleStageLengths) {
+    const cycleDeltaWithProposal =
+      spaceInfo.currentCycle - (proposal.governanceCycle || 0);
     const firstSchedule = scheduleOfCycle(
       cycleStageLengths,
-      1,
-      spaceInfo.currentEvent as unknown as DateEvent,
+      1 - cycleDeltaWithProposal,
+      spaceInfo.currentEvent,
     );
     const lastSchedule = scheduleOfCycle(
       cycleStageLengths,
-      payout.count,
-      spaceInfo.currentEvent as unknown as DateEvent,
+      payout.count - cycleDeltaWithProposal,
+      spaceInfo.currentEvent,
     );
     explanationComment += ` from ${format(firstSchedule.start, "LLL d, yyyy")} to ${format(lastSchedule.end, "LLL d, yyyy")}`;
   }
