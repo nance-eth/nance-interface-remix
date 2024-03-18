@@ -56,7 +56,7 @@ export default function ProposalList({
   const page = parseInt(searchParams.get("page") || "1");
   const limit = 8;
   const startIndex = 1 + limit * (page - 1);
-  const endIndex = startIndex + proposals.length;
+  const endIndex = startIndex + proposals.length - 1;
 
   if (proposals.length === 0) {
     return <EmptyProposalList />;
