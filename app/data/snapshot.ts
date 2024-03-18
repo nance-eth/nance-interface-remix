@@ -1,4 +1,5 @@
 import { GraphQLClient, gql } from "graphql-request";
+import { ProposalType, getChoiceLabel } from "~/utils/snapshot";
 
 const endpoint = "https://hub.snapshot.org/graphql";
 
@@ -33,21 +34,30 @@ const votesOfProposalQuery = gql`
 
     proposal(id: $id) {
       choices
+      type
     }
   }
 `;
 
-export interface SnapshotVote {
-  id: string;
-  // metadata
-  app: string;
-  created: number;
-  // voting
-  voter: string;
-  choice: any;
-  vp: number;
-  reason: string;
-}
+type VotesOfProposal = {
+  votes: {
+    id: string;
+    // metadata
+    app: string;
+    created: number;
+    // voting
+    voter: string;
+    vp: number;
+    reason: string;
+    choice: number | { [k: string]: number };
+    choiceLabel?: string;
+    aha: string;
+  }[];
+  proposal: {
+    choices?: string[];
+    type: ProposalType;
+  };
+};
 
 export default async function getVotesOfProposal(
   id: string,
@@ -60,18 +70,19 @@ export default async function getVotesOfProposal(
   }
 
   const variable = { id, skip, orderBy, first };
-  const data = await graphQLClient.request<{
-    votes: SnapshotVote[];
-    proposal: { choices: string[] };
-  }>(votesOfProposalQuery, variable);
+  const data = await graphQLClient.request<VotesOfProposal>(
+    votesOfProposalQuery,
+    variable,
+  );
 
-  const choices = ["-", ...data.proposal.choices];
-  const votes = data.votes.map((vote) => {
+  return data.votes.map((vote) => {
     return {
       ...vote,
-      choice: choices[vote.choice] || vote.choice,
+      choiceLabel: getChoiceLabel(
+        data.proposal.type,
+        data.proposal.choices,
+        vote.choice,
+      ),
     };
   });
-
-  return votes;
 }

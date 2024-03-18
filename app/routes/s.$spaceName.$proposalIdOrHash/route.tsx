@@ -222,7 +222,7 @@ export default function Proposal() {
                             <span className="font-medium text-gray-900">
                               {vote.voter.slice(0, 8)}
                             </span>{" "}
-                            voted {vote.choice}
+                            voted {vote.choiceLabel}
                           </div>
                           <time
                             dateTime={fromUnixTime(vote.created).toISOString()}
@@ -251,7 +251,7 @@ export default function Proposal() {
                         <span className="font-medium text-gray-900">
                           {vote.voter.slice(0, 8)}
                         </span>{" "}
-                        voted {vote.choice}
+                        voted {vote.choiceLabel}
                       </p>
                       <time
                         dateTime={fromUnixTime(vote.created).toISOString()}

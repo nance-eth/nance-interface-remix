@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useAccount, useSignTypedData } from "wagmi";
-import { CastVoteArgs, castVote } from "~/utils/signing";
+import { CastVoteArgs, castVote } from "~/utils/snapshot";
 
 type CastVoteHookArgs = Pick<
   CastVoteArgs,

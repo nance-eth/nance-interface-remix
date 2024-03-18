@@ -4,12 +4,12 @@ import { Address, Hex } from "viem";
 const hub = "https://hub.snapshot.org"; // or https://testnet.hub.snapshot.org for testnet
 
 export type ProposalType =
-  | "single-choice"
   | "approval"
-  | "quadratic"
-  | "ranked-choice"
+  | "ranked-choice" // choice = [1,2,3]
+  | "basic"
+  | "single-choice" // choice = 1
   | "weighted"
-  | "basic";
+  | "quadratic"; // choice = {"1": 1, "2": 2, "3": 3}
 
 export interface CastVoteArgs {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,4 +79,36 @@ export async function castVote({
     app: "nance.app",
   });
   return res as SnapshotResponse;
+}
+
+// map indexed choice number to choice string
+export function getChoiceLabel(
+  type: ProposalType,
+  choices: string[] | undefined,
+  choice: number | number[] | { [key: string]: number } | undefined,
+): string {
+  if (!type || !choices || !choice) return "Unknown";
+
+  if (type == "approval") {
+    // choice = [1,2,3]
+    const choiceArr = choice as number[];
+    return choiceArr.map((c: number) => choices[c - 1]).join(", ");
+  } else if (type == "ranked-choice") {
+    // choice = [1,2,3]
+    const choiceArr = choice as number[];
+    return choiceArr.map((c, i) => `(${i + 1}th) ${choices[c - 1]}`).join(", ");
+  } else if (["quadratic", "weighted"].includes(type)) {
+    // choice = {"1": 1, "2": 2, "3": 3}
+    const choiceObj = choice as { [key: string]: number };
+    const totalUnits = Object.values(choiceObj).reduce((a, b) => a + b, 0);
+    return Object.entries(choiceObj)
+      .map(
+        ([key, value]) =>
+          `${Math.round((value / totalUnits) * 100)}% for ${choices[parseInt(key) - 1]}`,
+      )
+      .join(", ");
+  } else {
+    // choice = 1
+    return choices[(choice as number) - 1];
+  }
 }
