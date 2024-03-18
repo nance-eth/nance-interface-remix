@@ -64,7 +64,7 @@ export default function Proposal() {
         </div>
 
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-10">
-          <div className="mx-auto flex max-w-2xl flex-col items-end justify-between gap-x-8 gap-y-4 lg:mx-0 lg:max-w-none lg:flex-row lg:items-center">
+          <div className="mx-auto flex max-w-2xl justify-between gap-x-8 gap-y-4 lg:mx-0 lg:max-w-none">
             <div className="flex items-center gap-x-6">
               <img
                 src="https://tailwindui.com/img/logos/48x48/tuple.svg"
@@ -76,13 +76,13 @@ export default function Proposal() {
                   {`${proposal.proposalId} ${proposal.title}`}
                 </div>
 
-                <p className="mt-1 flex gap-x-1 text-xs leading-5 text-gray-500">
+                <div className="mt-1 flex flex-wrap gap-x-1 text-xs leading-5 text-gray-500">
                   <span>by</span>
                   <AddressLink address={proposal.authorAddress} />
                   {proposal.coauthors?.map((addr) => (
                     <AddressLink key={addr} address={addr} />
                   ))}
-                </p>
+                </div>
 
                 <p className="flex gap-x-1 text-xs leading-5 text-gray-500">
                   {`on ${format(proposal.lastEditedTime || proposal.createdTime || "", "LLL d, yyyy")} (GC-${proposal.governanceCycle})`}
@@ -110,7 +110,7 @@ export default function Proposal() {
               <Link
                 to={{
                   pathname: "../edit",
-                  search: `?proposalIdOrHash=${proposal.hash}`,
+                  search: `?proposal=${proposal.hash}`,
                 }}
                 className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"
               >
@@ -146,6 +146,19 @@ export default function Proposal() {
                       {({ active }) => (
                         <button
                           type="button"
+                          onClick={() => {
+                            toast.promise(
+                              navigator.clipboard.writeText(
+                                window.location.href,
+                              ),
+                              {
+                                loading: "Copying...",
+                                success: "Copied!",
+                                error: (err) =>
+                                  `${err?.error_description || err.toString()}`,
+                              },
+                            );
+                          }}
                           className={classNames(
                             active ? "bg-gray-50" : "",
                             "block w-full px-3 py-1 text-left text-sm leading-6 text-gray-900",
@@ -157,15 +170,15 @@ export default function Proposal() {
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="#"
-                          className={classNames(
-                            active ? "bg-gray-50" : "",
-                            "block px-3 py-1 text-sm leading-6 text-gray-900",
-                          )}
+                        <Link
+                          to={{
+                            pathname: "../edit",
+                            search: `?proposal=${proposal.hash}`,
+                          }}
+                          className="block px-3 py-1 text-sm leading-6 text-gray-900"
                         >
                           Edit
-                        </a>
+                        </Link>
                       )}
                     </Menu.Item>
                   </Menu.Items>

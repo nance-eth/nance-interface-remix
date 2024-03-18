@@ -84,8 +84,8 @@ export default function ProposalList({
                   {proposal.title}
                 </Link>
               </p>
-              <p className="mt-1 flex gap-x-1 text-xs leading-5 text-gray-500">
-                <span>{`GC-${proposal.governanceCycle}, ${prefix}${proposal.proposalId} - by`}</span>
+              <p className="mt-1 flex flex-wrap gap-x-1 text-xs leading-5 text-gray-500">
+                <span>{`GC-${proposal.governanceCycle}, ${prefix}${proposal.proposalId || "tbd"} - by`}</span>
                 <AddressLink address={proposal.authorAddress} />
               </p>
             </div>
