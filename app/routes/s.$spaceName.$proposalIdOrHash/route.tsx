@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import MarkdownWithTOC from "./markdown-with-toc";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
@@ -14,21 +14,16 @@ import NewVote from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
 import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
 import ErrorPage from "~/components/error-page";
+import toast from "react-hot-toast";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
-  invariant(params.proposalIdOrHash, "Missing spaceName param");
+  invariant(params.proposalIdOrHash, "Missing proposalIdOrHash param");
 
   const proposal = await getProposal({
     space: params.spaceName,
     hash: params.proposalIdOrHash,
   });
-  if (!proposal) {
-    throw new Response("Proposal Not Found", {
-      status: 404,
-      statusText: "Proposal Not Found",
-    });
-  }
 
   let cycleStageLengths;
   if (proposal.actions?.find((action) => action.type === "Payout")) {
@@ -69,7 +64,7 @@ export default function Proposal() {
         </div>
 
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-10">
-          <div className="mx-auto flex max-w-2xl flex-col items-center justify-between gap-x-8 gap-y-4 lg:mx-0 lg:max-w-none lg:flex-row">
+          <div className="mx-auto flex max-w-2xl flex-col items-end justify-between gap-x-8 gap-y-4 lg:mx-0 lg:max-w-none lg:flex-row lg:items-center">
             <div className="flex items-center gap-x-6">
               <img
                 src="https://tailwindui.com/img/logos/48x48/tuple.svg"
@@ -97,16 +92,30 @@ export default function Proposal() {
             <div className="flex items-center gap-x-4 sm:gap-x-6">
               <button
                 type="button"
+                onClick={() => {
+                  toast.promise(
+                    navigator.clipboard.writeText(window.location.href),
+                    {
+                      loading: "Copying...",
+                      success: "Copied!",
+                      error: (err) =>
+                        `${err?.error_description || err.toString()}`,
+                    },
+                  );
+                }}
                 className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"
               >
                 Copy URL
               </button>
-              <a
-                href="#"
+              <Link
+                to={{
+                  pathname: "../edit",
+                  search: `?proposalIdOrHash=${proposal.hash}`,
+                }}
                 className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"
               >
                 Edit
-              </a>
+              </Link>
               <a
                 href="#votes"
                 className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
