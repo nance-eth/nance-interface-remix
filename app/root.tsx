@@ -1,7 +1,6 @@
 import type { LinksFunction } from "@remix-run/node";
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
@@ -10,7 +9,7 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 
-import tailwindStylesHref from "./tailwind.css";
+import tailwindStylesHref from "./tailwind.css?url";
 import favicon from "./images/favicon.ico";
 import { Web3Provider } from "./web3-provider";
 import { ClientOnly } from "remix-utils/client-only";
@@ -56,7 +55,6 @@ export default function App() {
 
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   );

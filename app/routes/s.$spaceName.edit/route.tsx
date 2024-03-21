@@ -1,16 +1,12 @@
-import { LinksFunction, LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { ClientOnly } from "remix-utils/client-only";
-import { cssBundleHref } from "@remix-run/css-bundle";
 import NanceEditor from "~/components/MarkdownEditor.client";
 import { useLoaderData } from "@remix-run/react";
 
 // css for the Nance editor
-import "@nance/nance-editor/lib/editor.css";
+import "@nance/nance-editor/lib/editor.css?url";
 import invariant from "tiny-invariant";
 import { Proposal, getProposal } from "@nance/nance-sdk";
-export const links: LinksFunction = () => [
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
-];
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   invariant(params.spaceName, "Missing spaceName param");
