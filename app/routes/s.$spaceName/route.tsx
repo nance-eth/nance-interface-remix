@@ -15,7 +15,7 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { classNames } from "~/utils/tailwind";
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@vercel/remix";
 import invariant from "tiny-invariant";
 import { ConnectKitButton } from "connectkit";
 import { ClientOnly } from "remix-utils/client-only";

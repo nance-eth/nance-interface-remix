@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, json } from "@vercel/remix";
 import { ClientOnly } from "remix-utils/client-only";
 import NanceEditor from "~/components/MarkdownEditor.client";
 import { useLoaderData } from "@remix-run/react";

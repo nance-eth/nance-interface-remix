@@ -1,7 +1,7 @@
 import { ChevronRightIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { PlusIcon, QueueListIcon } from "@heroicons/react/24/solid";
 import { ProposalsPacket, SpaceInfo, getSpaceConfig } from "@nance/nance-sdk";
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@vercel/remix";
 import { Link, useLoaderData, useOutletContext } from "@remix-run/react";
 import { format } from "date-fns";
 import invariant from "tiny-invariant";

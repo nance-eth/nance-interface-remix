@@ -1,7 +1,7 @@
 import { Link, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import MarkdownWithTOC from "./markdown-with-toc";
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, json } from "@vercel/remix";
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";

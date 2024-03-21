@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, json } from "@vercel/remix";
 import { useLoaderData } from "@remix-run/react";
 import HeroSection, { SimpleSpaceEntry } from "./hero-section";
 import { getAllSpaces } from "@nance/nance-sdk";
