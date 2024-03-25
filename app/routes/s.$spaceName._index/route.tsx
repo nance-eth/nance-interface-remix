@@ -87,7 +87,9 @@ export default function SpaceIndex() {
           </div>
 
           <ProposalList
-            proposals={proposalsPacket.proposals}
+            proposals={proposalsPacket.proposals.filter(
+              (p) => searchMode || p.status !== "Archived",
+            )}
             prefix={proposalsPacket.proposalInfo.proposalIdPrefix}
             hasMore={proposalsPacket.hasMore}
           />
