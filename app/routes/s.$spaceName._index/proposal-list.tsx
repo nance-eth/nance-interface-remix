@@ -87,10 +87,12 @@ export default function ProposalList({
   const startIndex = 1 + limit * (page - 1);
   const endIndex = startIndex + proposals.length - 1;
 
-  if (!searchMode) {
-    return <NoActiveProposals />;
-  } else if (proposals.length === 0) {
-    return <NoResults />;
+  if (proposals.length === 0) {
+    if (searchMode) {
+      return <NoResults />;
+    } else {
+      return <NoActiveProposals />;
+    }
   }
 
   return (
