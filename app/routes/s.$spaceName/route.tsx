@@ -176,10 +176,7 @@ export default function SpaceLayout() {
                             type="search"
                             name="keyword"
                             id="keyword"
-                            className={classNames(
-                              "block w-full rounded-md border-0 bg-white py-1.5 pl-10 pr-14 text-gray-900 focus:ring-2 focus:ring-white sm:text-sm sm:leading-6",
-                              searching && "animate-pulse",
-                            )}
+                            className="block w-full rounded-md border-0 bg-white py-1.5 pl-10 pr-14 text-gray-900 focus:ring-2 focus:ring-white sm:text-sm sm:leading-6"
                             placeholder="Search"
                             defaultValue={
                               (searching

@@ -8,6 +8,7 @@ import {
   ScrollRestoration,
   json,
   useLoaderData,
+  useNavigation,
 } from "@remix-run/react";
 
 import tailwindStylesHref from "./tailwind.css";
@@ -16,6 +17,7 @@ import { Web3Provider } from "./web3-provider";
 import { ClientOnly } from "remix-utils/client-only";
 import ErrorPage from "./components/error-page";
 import { Toaster } from "react-hot-toast";
+import { classNames } from "./utils/tailwind";
 
 export const links: LinksFunction = () => [
   {
@@ -35,6 +37,7 @@ export async function loader() {
 
 export default function App() {
   const { wcProjectId } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
 
   return (
     <html lang="en">
@@ -44,7 +47,11 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body
+        className={classNames(
+          navigation.state === "loading" && "animate-pulse",
+        )}
+      >
         <ClientOnly fallback={<Outlet />}>
           {() => (
             <Web3Provider wcProjectId={wcProjectId}>
