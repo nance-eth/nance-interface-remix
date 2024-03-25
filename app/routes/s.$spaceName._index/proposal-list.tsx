@@ -6,7 +6,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Proposal } from "@nance/nance-sdk";
-import { Link, useSearchParams } from "@remix-run/react";
+import { Link, useOutletContext, useSearchParams } from "@remix-run/react";
 import { formatDistanceStrict } from "date-fns";
 import AddressLink from "~/components/address-link";
 import ProposalStatusIcon from "~/components/proposal-status-icon";
@@ -17,25 +17,51 @@ function getLastEditedTime(proposal: Proposal) {
   return proposal.lastEditedTime || proposal.date || "";
 }
 
-function EmptyProposalList() {
+function NoResults() {
   return (
     <div className="text-center">
       <div className="flex justify-center">
         <DocumentMagnifyingGlassIcon className="h-10 w-10 text-gray-400" />
       </div>
       <h3 className="mt-2 text-sm font-semibold text-gray-900">
-        No proposals.
+        No proposals satisified your requirement.
       </h3>
       <p className="mt-1 text-sm text-gray-500">
         Try to search with different keyword.
       </p>
       <div className="mt-6">
         <Link
-          to={{ search: "?" }}
+          to={{ search: "?cycle=All" }}
+          prefetch="viewport"
           className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           <XMarkIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
           Reset search
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function NoActiveProposals() {
+  return (
+    <div className="text-center">
+      <div className="flex justify-center">
+        <DocumentMagnifyingGlassIcon className="h-10 w-10 text-gray-400" />
+      </div>
+      <h3 className="mt-2 text-sm font-semibold text-gray-900">
+        No active proposals for now.
+      </h3>
+      <p className="mt-1 text-sm text-gray-500">
+        Try to browse history proposals.
+      </p>
+      <div className="mt-6">
+        <Link
+          to={{ search: "?cycle=All" }}
+          prefetch="viewport"
+          className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          Browse proposals
         </Link>
       </div>
     </div>
@@ -51,6 +77,9 @@ export default function ProposalList({
   prefix: string;
   hasMore: boolean;
 }) {
+  const { searchMode } = useOutletContext<{
+    searchMode: boolean;
+  }>();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const page = parseInt(searchParams.get("page") || "1");
@@ -58,8 +87,10 @@ export default function ProposalList({
   const startIndex = 1 + limit * (page - 1);
   const endIndex = startIndex + proposals.length - 1;
 
-  if (proposals.length === 0) {
-    return <EmptyProposalList />;
+  if (!searchMode) {
+    return <NoActiveProposals />;
+  } else if (proposals.length === 0) {
+    return <NoResults />;
   }
 
   return (
