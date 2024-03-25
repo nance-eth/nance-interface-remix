@@ -27,7 +27,7 @@ export default function HeroSection({
             }}
           />
         </div>
-        <div className="mx-auto max-w-2xl py-24 sm:py-48 lg:py-56">
+        <div className="mx-auto max-w-2xl py-24">
           <div className="text-center">
             <div className="flex justify-center">
               <img src={logo} alt="Nance" width={300} height={300} />

@@ -18,6 +18,7 @@ import { ClientOnly } from "remix-utils/client-only";
 import ErrorPage from "./components/error-page";
 import { Toaster } from "react-hot-toast";
 import { classNames } from "./utils/tailwind";
+import Footer from "./components/footer";
 
 export const links: LinksFunction = () => [
   {
@@ -30,13 +31,15 @@ export const links: LinksFunction = () => [
 
 export async function loader() {
   const wcProjectId = process.env.WALLETCONNECT_PROJECT_ID;
+  const commitSha = process.env.VERCEL_GIT_COMMIT_SHA;
   return json({
     wcProjectId,
+    commitSha,
   });
 }
 
 export default function App() {
-  const { wcProjectId } = useLoaderData<typeof loader>();
+  const { wcProjectId, commitSha } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
 
   return (
@@ -59,6 +62,7 @@ export default function App() {
             </Web3Provider>
           )}
         </ClientOnly>
+        <Footer commit={commitSha} />
         <Toaster position="top-right" />
 
         <ScrollRestoration />

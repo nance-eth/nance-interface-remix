@@ -1,4 +1,6 @@
+import FeatureSection from "./feature-section";
 import HeroSection from "./hero-section";
+import StatsSection from "./stats-section";
 
 export default function Index() {
   const spaces = [
@@ -16,5 +18,11 @@ export default function Index() {
     },
   ];
 
-  return <HeroSection top4Spaces={spaces} />;
+  return (
+    <>
+      <HeroSection top4Spaces={spaces} />
+      <StatsSection />
+      <FeatureSection />
+    </>
+  );
 }
