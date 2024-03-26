@@ -27,7 +27,7 @@ export default function VotingInfo({
     <>
       {votingInfo.quorum > 0 && votingInfo.state === "active" && (
         <p className="flex flex-wrap gap-x-1 text-xs leading-5 text-gray-500">
-          {`Ends in ${timeTillEnd} - ${quorumProgress}% of quorum reached`}
+          {`Ends ${timeTillEnd} - ${quorumProgress}% of quorum reached`}
         </p>
       )}
 
