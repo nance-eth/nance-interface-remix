@@ -26,6 +26,10 @@ import {
   getSpace,
 } from "@nance/nance-sdk";
 import ErrorPage from "~/components/error-page";
+import {
+  SnapshotGraphqlProposalVotingInfo,
+  getVotingInfoOfProposals,
+} from "~/data/snapshot";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -36,12 +40,6 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   invariant(params.spaceName, "Missing spaceName param");
   const spaceInfo = await getSpace(params.spaceName);
-  if (!spaceInfo) {
-    throw new Response("Space Not Found", {
-      status: 404,
-      statusText: "Space Not Found",
-    });
-  }
 
   // Display next cycle in Active tab if we are in last stages of current cycle
   const noVotingNeedThisCycle = GovernanceEventName.slice(2).includes(
@@ -58,11 +56,22 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     keyword,
     page,
   });
-  if (!proposalsPacket) {
-    throw new Response("Not Found", { status: 404 });
-  }
+  const snapshotIds = proposalsPacket.proposals
+    .map((p) => p.voteURL)
+    .filter((v) => v?.length > 0);
+  const votingInfos = await getVotingInfoOfProposals(snapshotIds);
+  const votingInfoMap: { [key: string]: SnapshotGraphqlProposalVotingInfo } =
+    {};
+  votingInfos.forEach((info) => (votingInfoMap[info.id] = info));
 
-  return { spaceInfo, proposalsPacket, keyword, page, searchMode };
+  return {
+    spaceInfo,
+    proposalsPacket,
+    votingInfoMap,
+    keyword,
+    page,
+    searchMode,
+  };
 };
 
 export function ErrorBoundary() {
@@ -70,8 +79,14 @@ export function ErrorBoundary() {
 }
 
 export default function SpaceLayout() {
-  const { spaceInfo, proposalsPacket, keyword, page, searchMode } =
-    useLoaderData<typeof loader>();
+  const {
+    spaceInfo,
+    proposalsPacket,
+    votingInfoMap,
+    keyword,
+    page,
+    searchMode,
+  } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
 
   const navigationParams = new URLSearchParams(navigation.location?.search);
@@ -282,7 +297,14 @@ export default function SpaceLayout() {
 
         <main>
           <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-            <Outlet context={{ spaceInfo, proposalsPacket, searchMode }} />
+            <Outlet
+              context={{
+                spaceInfo,
+                proposalsPacket,
+                searchMode,
+                votingInfoMap,
+              }}
+            />
           </div>
         </main>
       </div>

@@ -8,7 +8,6 @@ import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { classNames } from "~/utils/tailwind";
 import ActionLabel from "./action-label";
 import AddressLink from "~/components/address-link";
-import getVotesOfProposal from "~/data/snapshot";
 import { format } from "date-fns";
 import NewVote from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
@@ -16,6 +15,7 @@ import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
 import ErrorPage from "~/components/error-page";
 import toast from "react-hot-toast";
 import VoteList from "./vote-list";
+import { getVotesOfProposal } from "~/data/snapshot";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");

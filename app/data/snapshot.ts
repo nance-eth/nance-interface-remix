@@ -39,11 +39,52 @@ const votesOfProposalQuery = gql`
   }
 `;
 
+const votingInfoOfProposalsQuery = gql`
+  query ProposalsByID($first: Int, $proposalIds: [String]) {
+    proposals(
+      first: $first
+      skip: 0
+      where: { id_in: $proposalIds }
+      orderBy: "created"
+      orderDirection: desc
+    ) {
+      id
+      state
+      end
+      type
+      choices
+      scores
+      votes
+      quorum
+      scores_total
+      ipfs
+      snapshot
+    }
+  }
+`;
+
+export type SnapshotGraphqlProposalVotingInfo = {
+  id: string;
+  // active or
+  state: string;
+  end: number;
+  // voting type
+  type: string;
+  choices: string[];
+  // scores by choice
+  scores: number[];
+  // vote count
+  votes: number;
+  quorum: number;
+  scores_total: number;
+};
+
 export type SnapshotGraphqlVote = {
   id: string;
   // metadata
   app: string;
   created: number;
+  end: number;
   // voting
   voter: string;
   vp: number;
@@ -53,15 +94,18 @@ export type SnapshotGraphqlVote = {
   aha: string;
 };
 
-type VotesOfProposal = {
-  votes: SnapshotGraphqlVote[];
-  proposal: {
-    choices?: string[];
-    type: ProposalType;
-  };
-};
+export async function getVotingInfoOfProposals(
+  proposalIds: string[],
+): Promise<SnapshotGraphqlProposalVotingInfo[]> {
+  const variable = { first: proposalIds.length, proposalIds };
+  const data = await graphQLClient.request<{
+    proposals: SnapshotGraphqlProposalVotingInfo[];
+  }>(votingInfoOfProposalsQuery, variable);
 
-export default async function getVotesOfProposal(
+  return data.proposals;
+}
+
+export async function getVotesOfProposal(
   id: string,
   first: number = 10,
   skip: number = 0,
@@ -72,10 +116,13 @@ export default async function getVotesOfProposal(
   }
 
   const variable = { id, skip, orderBy, first };
-  const data = await graphQLClient.request<VotesOfProposal>(
-    votesOfProposalQuery,
-    variable,
-  );
+  const data = await graphQLClient.request<{
+    votes: SnapshotGraphqlVote[];
+    proposal: {
+      choices?: string[];
+      type: ProposalType;
+    };
+  }>(votesOfProposalQuery, variable);
 
   return data.votes.map((vote) => {
     return {

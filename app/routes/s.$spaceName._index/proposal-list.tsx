@@ -5,13 +5,15 @@ import {
   DocumentMagnifyingGlassIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { Proposal } from "@nance/nance-sdk";
+import { Proposal, ProposalsPacket } from "@nance/nance-sdk";
 import { Link, useOutletContext, useSearchParams } from "@remix-run/react";
 import { formatDistanceStrict } from "date-fns";
 import AddressLink from "~/components/address-link";
 import ProposalStatusIcon from "~/components/proposal-status-icon";
 import { classNames } from "~/utils/tailwind";
 import { duplicateAndSetParams } from "~/utils/url";
+import VotingInfo from "./voting-info";
+import { SnapshotGraphqlProposalVotingInfo } from "~/data/snapshot";
 
 function getLastEditedTime(proposal: Proposal) {
   return proposal.lastEditedTime || proposal.date || "";
@@ -68,20 +70,21 @@ function NoActiveProposals() {
   );
 }
 
-export default function ProposalList({
-  proposals,
-  prefix,
-  hasMore,
-}: {
-  proposals: Proposal[];
-  prefix: string;
-  hasMore: boolean;
-}) {
-  const { searchMode } = useOutletContext<{
+export default function ProposalList() {
+  const { proposalsPacket, votingInfoMap, searchMode } = useOutletContext<{
+    proposalsPacket: ProposalsPacket;
+    votingInfoMap: { [key: string]: SnapshotGraphqlProposalVotingInfo };
     searchMode: boolean;
   }>();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const proposals = proposalsPacket.proposals.filter(
+    (p) => searchMode || p.status !== "Archived",
+  );
+  const prefix = proposalsPacket.proposalInfo.proposalIdPrefix;
+  const hasMore = proposalsPacket.hasMore;
+
+  // pagination
   const page = parseInt(searchParams.get("page") || "1");
   const limit = 8;
   const startIndex = 1 + limit * (page - 1);
@@ -108,6 +111,7 @@ export default function ProposalList({
           <div className="flex min-w-0 gap-x-4">
             <ProposalStatusIcon status={proposal.status} />
             <div className="min-w-0 flex-auto">
+              {/* Title */}
               <p className="text-sm font-semibold leading-6 text-gray-900">
                 <Link
                   prefetch="intent"
@@ -117,10 +121,12 @@ export default function ProposalList({
                   {proposal.title}
                 </Link>
               </p>
+              {/* Metadata */}
               <p className="mt-1 flex flex-wrap gap-x-1 text-xs leading-5 text-gray-500">
                 <span>{`GC-${proposal.governanceCycle}, ${prefix}${proposal.proposalId || "tbd"} - by`}</span>
                 <AddressLink address={proposal.authorAddress} />
               </p>
+              <VotingInfo votingInfo={votingInfoMap[proposal.voteURL]} />
             </div>
           </div>
           <div className="hidden shrink-0 items-center gap-x-4 sm:flex">

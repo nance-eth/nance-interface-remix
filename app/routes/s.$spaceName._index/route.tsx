@@ -1,4 +1,4 @@
-import { ChevronRightIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { PlusIcon, QueueListIcon } from "@heroicons/react/24/solid";
 import { ProposalsPacket, SpaceInfo, getSpaceConfig } from "@nance/nance-sdk";
 import { LoaderFunctionArgs } from "@remix-run/node";
@@ -46,9 +46,8 @@ export function ErrorBoundary() {
 }
 
 export default function SpaceIndex() {
-  const { spaceInfo, proposalsPacket, searchMode } = useOutletContext<{
+  const { spaceInfo, searchMode } = useOutletContext<{
     spaceInfo: SpaceInfo;
-    proposalsPacket: ProposalsPacket;
     searchMode: boolean;
   }>();
   const { cycleStageLengths, displayName } = useLoaderData<typeof loader>();
@@ -86,13 +85,7 @@ export default function SpaceIndex() {
             </Link>
           </div>
 
-          <ProposalList
-            proposals={proposalsPacket.proposals.filter(
-              (p) => searchMode || p.status !== "Archived",
-            )}
-            prefix={proposalsPacket.proposalInfo.proposalIdPrefix}
-            hasMore={proposalsPacket.hasMore}
-          />
+          <ProposalList />
         </main>
 
         {searchMode && (

@@ -1,12 +1,8 @@
 import { formatDistanceStrict, fromUnixTime } from "date-fns";
 import AddressLink from "~/components/address-link";
 import { SnapshotGraphqlVote } from "~/data/snapshot";
+import { formatNumber } from "~/utils/number";
 import { classNames } from "~/utils/tailwind";
-
-const formatter = new Intl.NumberFormat("en-GB", {
-  notation: "compact",
-  compactDisplay: "short",
-});
 
 export default function VoteList({ votes }: { votes: SnapshotGraphqlVote[] }) {
   return (
@@ -34,7 +30,7 @@ export default function VoteList({ votes }: { votes: SnapshotGraphqlVote[] }) {
                     <span className="font-medium text-gray-900">
                       <AddressLink address={vote.voter} />
                     </span>{" "}
-                    voted {vote.choiceLabel} with {formatter.format(vote.vp)}
+                    voted {vote.choiceLabel} with {formatNumber(vote.vp)}
                   </div>
                   <time
                     dateTime={fromUnixTime(vote.created).toISOString()}
@@ -61,7 +57,7 @@ export default function VoteList({ votes }: { votes: SnapshotGraphqlVote[] }) {
                 <span className="font-medium text-gray-900">
                   <AddressLink address={vote.voter} />
                 </span>{" "}
-                voted {vote.choiceLabel} with {formatter.format(vote.vp)}
+                voted {vote.choiceLabel} with {formatNumber(vote.vp)}
               </p>
               <time
                 dateTime={fromUnixTime(vote.created).toISOString()}
