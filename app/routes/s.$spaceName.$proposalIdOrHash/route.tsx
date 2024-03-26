@@ -9,12 +9,13 @@ import { classNames } from "~/utils/tailwind";
 import ActionLabel from "./action-label";
 import AddressLink from "~/components/address-link";
 import getVotesOfProposal from "~/data/snapshot";
-import { format, formatDistanceStrict, fromUnixTime } from "date-fns";
+import { format } from "date-fns";
 import NewVote from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
 import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
 import ErrorPage from "~/components/error-page";
 import toast from "react-hot-toast";
+import VoteList from "./vote-list";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -223,78 +224,7 @@ export default function Proposal() {
                 />
               )}
             </ClientOnly>
-            <ul className="mt-6 space-y-6">
-              {votes.map((vote, voteIdx) => (
-                <li key={vote.id} className="relative flex gap-x-4">
-                  <div
-                    className={classNames(
-                      voteIdx === votes.length - 1 ? "h-6" : "-bottom-6",
-                      "absolute left-0 top-0 flex w-6 justify-center",
-                    )}
-                  >
-                    <div className="w-px bg-gray-200" />
-                  </div>
-                  {vote.reason ? (
-                    <>
-                      <img
-                        src={`https://cdn.stamp.fyi/avatar/${vote.voter}`}
-                        alt=""
-                        className="relative mt-3 h-6 w-6 flex-none rounded-full bg-gray-50"
-                      />
-                      <div className="flex-auto rounded-md p-3 ring-1 ring-inset ring-gray-200">
-                        <div className="flex justify-between gap-x-4">
-                          <div className="py-0.5 text-xs leading-5 text-gray-500">
-                            <span className="font-medium text-gray-900">
-                              {vote.voter.slice(0, 8)}
-                            </span>{" "}
-                            voted {vote.choiceLabel}
-                          </div>
-                          <time
-                            dateTime={fromUnixTime(vote.created).toISOString()}
-                            className="flex-none py-0.5 text-xs leading-5 text-gray-500"
-                          >
-                            {formatDistanceStrict(
-                              fromUnixTime(vote.created),
-                              new Date(),
-                              {
-                                addSuffix: true,
-                              },
-                            )}
-                          </time>
-                        </div>
-                        <p className="text-sm leading-6 text-gray-500">
-                          {vote.reason}
-                        </p>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="relative flex h-6 w-6 flex-none items-center justify-center bg-white">
-                        <div className="h-1.5 w-1.5 rounded-full bg-gray-100 ring-1 ring-gray-300" />
-                      </div>
-                      <p className="flex-auto py-0.5 text-xs leading-5 text-gray-500">
-                        <span className="font-medium text-gray-900">
-                          {vote.voter.slice(0, 8)}
-                        </span>{" "}
-                        voted {vote.choiceLabel}
-                      </p>
-                      <time
-                        dateTime={fromUnixTime(vote.created).toISOString()}
-                        className="flex-none py-0.5 text-xs leading-5 text-gray-500"
-                      >
-                        {formatDistanceStrict(
-                          fromUnixTime(vote.created),
-                          new Date(),
-                          {
-                            addSuffix: true,
-                          },
-                        )}
-                      </time>
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <VoteList votes={votes} />
           </div>
         </div>
       </div>

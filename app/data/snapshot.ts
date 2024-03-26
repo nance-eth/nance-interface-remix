@@ -39,20 +39,22 @@ const votesOfProposalQuery = gql`
   }
 `;
 
+export type SnapshotGraphqlVote = {
+  id: string;
+  // metadata
+  app: string;
+  created: number;
+  // voting
+  voter: string;
+  vp: number;
+  reason: string;
+  choice: number | { [k: string]: number };
+  choiceLabel?: string;
+  aha: string;
+};
+
 type VotesOfProposal = {
-  votes: {
-    id: string;
-    // metadata
-    app: string;
-    created: number;
-    // voting
-    voter: string;
-    vp: number;
-    reason: string;
-    choice: number | { [k: string]: number };
-    choiceLabel?: string;
-    aha: string;
-  }[];
+  votes: SnapshotGraphqlVote[];
   proposal: {
     choices?: string[];
     type: ProposalType;
@@ -64,7 +66,7 @@ export default async function getVotesOfProposal(
   first: number = 10,
   skip: number = 0,
   orderBy: "created" | "vp" = "created",
-) {
+): Promise<SnapshotGraphqlVote[]> {
   if (!id) {
     return [];
   }
