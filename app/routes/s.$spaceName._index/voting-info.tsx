@@ -1,4 +1,3 @@
-import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import { SnapshotGraphqlProposalVotingInfo } from "~/data/snapshot";
 import { formatNumber } from "~/utils/number";
 
@@ -13,6 +12,8 @@ export default function VotingInfo({
     (votingInfo.scores_total * 100) /
     votingInfo.quorum
   ).toFixed(0);
+  const quorumLabel =
+    votingInfo.quorum !== 0 ? `${quorumProgress}% of quorum, ` : "";
   const scoresLabel = votingInfo.choices
     .map(
       (choice, index) => `${choice} ${formatNumber(votingInfo.scores[index])}`,
@@ -22,7 +23,7 @@ export default function VotingInfo({
 
   return (
     <p className="flex flex-wrap gap-x-1 text-xs text-gray-500">
-      {`${quorumProgress}% of quorum, ${scoresLabel}`}
+      {`${quorumLabel}${scoresLabel}`}
     </p>
   );
 }
