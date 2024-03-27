@@ -125,7 +125,8 @@ function PayoutActionLabel({ payout }: { payout: Payout }) {
   const project = payout.project;
   const label = `${payout.amountUSD} USD for ${payout.count} cycles`;
 
-  let explanationComment = `// Pay ${payout.amountUSD * payout.count} USD in total`;
+  let explanationComment =
+    payout.count > 1 ? `${payout.amountUSD * payout.count} USD in total ` : "";
   if (cycleStageLengths) {
     const cycleDeltaWithProposal =
       spaceInfo.currentCycle - (proposal.governanceCycle || 0);
@@ -139,17 +140,16 @@ function PayoutActionLabel({ payout }: { payout: Payout }) {
       payout.count - cycleDeltaWithProposal,
       spaceInfo.currentEvent,
     );
-    explanationComment += ` from ${format(firstSchedule.start, "LLL d, yyyy")} to ${format(lastSchedule.end, "LLL d, yyyy")}`;
+    explanationComment += `from ${format(firstSchedule.start, "LLL d, yyyy")} to ${format(lastSchedule.end, "LLL d, yyyy")}`;
   }
 
   if (!project) {
     return (
       <div>
-        <p className="text-gray-500">{explanationComment}</p>
         <p className="flex gap-x-1">
           <span>Pay</span>
           <AddressLink address={address} />
-          <span>{label}</span>
+          <span>{`${label} (${explanationComment})`}</span>
         </p>
       </div>
     );

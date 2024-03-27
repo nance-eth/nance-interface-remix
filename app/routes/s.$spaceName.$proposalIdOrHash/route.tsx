@@ -68,7 +68,7 @@ export default function Proposal() {
           <div className="mx-auto flex max-w-2xl justify-between gap-x-8 gap-y-4 lg:mx-0 lg:max-w-none">
             <div className="flex items-center gap-x-6">
               <img
-                src="https://tailwindui.com/img/logos/48x48/tuple.svg"
+                src={`https://cdn.stamp.fyi/avatar/${proposal.authorAddress}`}
                 alt=""
                 className="h-16 w-16 flex-none rounded-full ring-1 ring-gray-900/10"
               />

@@ -5,8 +5,9 @@ import {
   CalendarDaysIcon,
   DocumentMagnifyingGlassIcon,
   XMarkIcon,
+  BanknotesIcon,
 } from "@heroicons/react/24/outline";
-import { Proposal, ProposalsPacket } from "@nance/nance-sdk";
+import { Payout, Proposal, ProposalsPacket, Transfer } from "@nance/nance-sdk";
 import { Link, useOutletContext, useSearchParams } from "@remix-run/react";
 import {
   formatDistanceStrict,
@@ -19,6 +20,8 @@ import { classNames } from "~/utils/tailwind";
 import { duplicateAndSetParams } from "~/utils/url";
 import VotingInfo from "./voting-info";
 import { SnapshotGraphqlProposalVotingInfo } from "~/data/snapshot";
+import { formatNumber } from "~/utils/number";
+import TokenSymbol from "~/components/token-symbol";
 
 function getLastEditedTime(proposal: Proposal) {
   return proposal.lastEditedTime || proposal.date || "";
@@ -70,6 +73,52 @@ function NoActiveProposals() {
         >
           Browse proposals
         </Link>
+      </div>
+    </div>
+  );
+}
+
+function RequestingTokensOfProposal({ proposal }: { proposal: Proposal }) {
+  // we only parse Payout and Transfer actions here
+  const usd =
+    proposal.actions
+      ?.filter((action) => action.type === "Payout")
+      .map(
+        (action) =>
+          (action.payload as Payout).amountUSD *
+          (action.payload as Payout).count,
+      )
+      .reduce((sum, val) => sum + val, 0) || 0;
+  const transferMap: { [key: string]: number } = {};
+  proposal.actions
+    ?.filter((action) => action.type === "Transfer")
+    .map((action) => action.payload as Transfer)
+    .forEach(
+      (transfer) =>
+        (transferMap[transfer.contract] =
+          (transferMap[transfer.contract] || 0) + parseInt(transfer.amount)),
+    );
+
+  if (usd === 0 && Object.entries(transferMap).length === 0) return null;
+
+  const tokens = [];
+  if (usd > 0) tokens.push(`${formatNumber(usd)} USD`);
+  Object.entries(transferMap).forEach((val) => {
+    const [contract, amount] = val;
+    if (tokens.length > 0) tokens.push(" + ");
+    tokens.push(
+      <span>
+        {formatNumber(amount)} <TokenSymbol address={contract} />
+      </span>,
+    );
+  });
+
+  return (
+    <div className="flex items-center gap-x-1">
+      <BanknotesIcon className="h-6 w-6 flex-none rounded-full bg-gray-50" />
+      <div>
+        <p className="text-gray-500">Requesting</p>
+        <div className="text-center text-black">{tokens}</div>
       </div>
     </div>
   );
@@ -128,7 +177,7 @@ export default function ProposalList() {
               </p>
               {/* Metadata */}
               <div className="mt-2 flex flex-wrap items-center gap-x-6 text-xs">
-                {/* <span>{`GC-${proposal.governanceCycle} - by`}</span> */}
+                {/* Author */}
                 <div className="flex items-center gap-x-1">
                   <img
                     src={`https://cdn.stamp.fyi/avatar/${proposal.authorAddress}`}
@@ -142,7 +191,7 @@ export default function ProposalList() {
                     </div>
                   </div>
                 </div>
-
+                {/* Due / Cycle */}
                 <div className="flex items-center gap-x-1">
                   <CalendarDaysIcon className="h-6 w-6 flex-none rounded-full bg-gray-50" />
                   {["Voting"].includes(proposal.status) &&
@@ -167,6 +216,8 @@ export default function ProposalList() {
                     </div>
                   )}
                 </div>
+                {/* Tokens */}
+                <RequestingTokensOfProposal proposal={proposal} />
               </div>
               <div className="mt-2">
                 <VotingInfo votingInfo={votingInfoMap[proposal.voteURL]} />

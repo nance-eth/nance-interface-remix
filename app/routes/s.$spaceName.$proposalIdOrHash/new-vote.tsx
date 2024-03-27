@@ -77,7 +77,6 @@ export default function NewVote({
     const data = Object.fromEntries(
       new FormData(event.currentTarget, event.nativeEvent.submitter),
     );
-    console.debug("dasd", data);
 
     const result = VoteSchema.safeParse(data);
     if (!result.success) {
