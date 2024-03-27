@@ -2,12 +2,17 @@ import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
+  CalendarDaysIcon,
   DocumentMagnifyingGlassIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Proposal, ProposalsPacket } from "@nance/nance-sdk";
 import { Link, useOutletContext, useSearchParams } from "@remix-run/react";
-import { formatDistanceStrict } from "date-fns";
+import {
+  formatDistanceStrict,
+  formatDistanceToNow,
+  fromUnixTime,
+} from "date-fns";
 import AddressLink from "~/components/address-link";
 import ProposalStatusIcon from "~/components/proposal-status-icon";
 import { classNames } from "~/utils/tailwind";
@@ -108,25 +113,64 @@ export default function ProposalList() {
           key={proposal.hash}
           className="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6"
         >
-          <div className="flex min-w-0 gap-x-4">
+          <div className="flex min-w-0 flex-col gap-x-4 sm:flex-row">
             <ProposalStatusIcon status={proposal.status} />
             <div className="min-w-0 flex-auto">
               {/* Title */}
-              <p className="text-sm font-semibold leading-6 text-gray-900">
+              <p className="text-base font-semibold text-gray-900">
                 <Link
                   prefetch="intent"
                   to={proposal.proposalId?.toString() || proposal.hash}
                 >
                   <span className="absolute inset-x-0 -top-px bottom-0" />
-                  {proposal.title}
+                  {`${prefix}${proposal.proposalId || "tbd"}: ${proposal.title}`}
                 </Link>
               </p>
               {/* Metadata */}
-              <p className="mt-1 flex flex-wrap gap-x-1 text-xs leading-5 text-gray-500">
-                <span>{`GC-${proposal.governanceCycle}, ${prefix}${proposal.proposalId || "tbd"} - by`}</span>
-                <AddressLink address={proposal.authorAddress} />
-              </p>
-              <VotingInfo votingInfo={votingInfoMap[proposal.voteURL]} />
+              <div className="mt-2 flex flex-wrap items-center gap-x-6 text-xs">
+                {/* <span>{`GC-${proposal.governanceCycle} - by`}</span> */}
+                <div className="flex items-center gap-x-1">
+                  <img
+                    src={`https://cdn.stamp.fyi/avatar/${proposal.authorAddress}`}
+                    alt=""
+                    className="h-6 w-6 flex-none rounded-full bg-gray-50"
+                  />
+                  <div>
+                    <p className="text-gray-500">Author</p>
+                    <div className="text-center text-black">
+                      <AddressLink address={proposal.authorAddress} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-x-1">
+                  <CalendarDaysIcon className="h-6 w-6 flex-none rounded-full bg-gray-50" />
+                  {["Voting"].includes(proposal.status) &&
+                  votingInfoMap[proposal.voteURL] ? (
+                    <div>
+                      <p className="text-gray-500">Due</p>
+                      <div className="text-center text-black">
+                        {formatDistanceToNow(
+                          fromUnixTime(votingInfoMap[proposal.voteURL].end),
+                          {
+                            addSuffix: true,
+                          },
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-gray-500">Cycle</p>
+                      <div className="text-center text-black">
+                        {proposal.governanceCycle}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="mt-2">
+                <VotingInfo votingInfo={votingInfoMap[proposal.voteURL]} />
+              </div>
             </div>
           </div>
           <div className="hidden shrink-0 items-center gap-x-4 sm:flex">

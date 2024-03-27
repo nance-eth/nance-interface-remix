@@ -9,9 +9,6 @@ export default function VotingInfo({
 }) {
   if (votingInfo === undefined) return null;
 
-  const timeTillEnd = formatDistanceToNow(fromUnixTime(votingInfo.end), {
-    addSuffix: true,
-  });
   const quorumProgress = (
     (votingInfo.scores_total * 100) /
     votingInfo.quorum
@@ -24,16 +21,8 @@ export default function VotingInfo({
     .join(", ");
 
   return (
-    <>
-      {votingInfo.quorum > 0 && votingInfo.state === "active" && (
-        <p className="flex flex-wrap gap-x-1 text-xs leading-5 text-gray-500">
-          {`Ends ${timeTillEnd} - ${quorumProgress}% of quorum reached`}
-        </p>
-      )}
-
-      <p className="flex flex-wrap gap-x-1 text-xs leading-5 text-gray-500">
-        {scoresLabel}
-      </p>
-    </>
+    <p className="flex flex-wrap gap-x-1 text-xs text-gray-500">
+      {`${quorumProgress}% of quorum, ${scoresLabel}`}
+    </p>
   );
 }
