@@ -30,6 +30,7 @@ import {
   SnapshotGraphqlProposalVotingInfo,
   getVotingInfoOfProposals,
 } from "~/data/snapshot";
+import { getChainIdFromName } from "~/utils/chain";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -40,6 +41,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   invariant(params.spaceName, "Missing spaceName param");
   const spaceInfo = await getSpace(params.spaceName);
+  const chainId = getChainIdFromName(spaceInfo.transactorAddress?.network);
 
   // Display next cycle in Active tab if we are in last stages of current cycle
   const noVotingNeedThisCycle = GovernanceEventName.slice(2).includes(
@@ -71,6 +73,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     keyword,
     page,
     searchMode,
+    chainId,
   };
 };
 
@@ -85,6 +88,7 @@ export default function SpaceLayout() {
     votingInfoMap,
     keyword,
     page,
+    chainId,
     searchMode,
   } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
@@ -303,6 +307,7 @@ export default function SpaceLayout() {
                 proposalsPacket,
                 searchMode,
                 votingInfoMap,
+                chainId,
               }}
             />
           </div>

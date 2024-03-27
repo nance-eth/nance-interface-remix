@@ -1,15 +1,16 @@
 import { createConfig, http } from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { mainnet, gnosis } from "wagmi/chains";
 import { getDefaultConfig } from "connectkit";
 
 export function getWagmiConfig(wcProjectId: string | undefined) {
   return createConfig(
     getDefaultConfig({
       // Your dApps chains
-      chains: [mainnet],
+      chains: [mainnet, gnosis],
       transports: {
         // RPC URL for each chain
         [mainnet.id]: http(mainnet.rpcUrls.default.http[0]),
+        [gnosis.id]: http(gnosis.rpcUrls.default.http[0]),
       },
 
       // Required API Keys
