@@ -231,17 +231,17 @@ export default function SpaceLayout() {
                     </div>
                     <div className="hidden lg:ml-4 lg:block">
                       <div className="flex items-center">
-                        <button
-                          type="button"
+                        <Link
+                          to="./edit"
                           className="relative flex-shrink-0 rounded-full bg-indigo-600 p-1 text-indigo-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
                         >
                           <span className="absolute -inset-1.5" />
-                          <span className="sr-only">View notifications</span>
+                          <span className="sr-only">New proposal</span>
                           <DocumentPlusIcon
                             className="h-6 w-6"
                             aria-hidden="true"
                           />
-                        </button>
+                        </Link>
 
                         <div className="relative ml-3 flex-shrink-0">
                           <ClientOnly fallback={<p>wallet</p>}>
@@ -280,17 +280,17 @@ export default function SpaceLayout() {
                       <ClientOnly fallback={<p>wallet</p>}>
                         {() => <ConnectKitButton />}
                       </ClientOnly>
-                      <button
-                        type="button"
+                      <Link
+                        to="./edit"
                         className="relative ml-auto flex-shrink-0 rounded-full bg-indigo-600 p-1 text-indigo-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
                       >
                         <span className="absolute -inset-1.5" />
-                        <span className="sr-only">View notifications</span>
+                        <span className="sr-only">New proposal</span>
                         <DocumentPlusIcon
                           className="h-6 w-6"
                           aria-hidden="true"
                         />
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </Disclosure.Panel>
