@@ -94,7 +94,7 @@ function TransferActionLabel({ transfer }: { transfer: Transfer }) {
   const label2 = `, amount: ${transfer.amount})`;
 
   return (
-    <p>
+    <div>
       <a
         href={`https://etherscan.io/address/${contract}`}
         className="hover:underline"
@@ -111,7 +111,7 @@ function TransferActionLabel({ transfer }: { transfer: Transfer }) {
         </a>
         {label2}
       </p>
-    </p>
+    </div>
   );
 }
 
@@ -193,12 +193,7 @@ function CustomTransactionActionLabel({
 
   return (
     <div>
-      <a
-        href={`https://etherscan.io/address/${contract}`}
-        className="hover:underline"
-      >
-        {contract}
-      </a>
+      <AddressLink address={contract} />
       <p className="ml-4">{label}</p>
     </div>
   );

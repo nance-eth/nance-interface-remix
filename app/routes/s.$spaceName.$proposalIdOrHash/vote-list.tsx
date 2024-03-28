@@ -4,10 +4,14 @@ import { SnapshotGraphqlVote } from "~/data/snapshot";
 import { formatNumber } from "~/utils/number";
 import { classNames } from "~/utils/tailwind";
 
-export default function VoteList({ votes }: { votes: SnapshotGraphqlVote[] }) {
+export default function VoteList({
+  votes,
+}: {
+  votes: SnapshotGraphqlVote[] | undefined;
+}) {
   return (
     <ul className="mt-6 space-y-6">
-      {votes.map((vote, voteIdx) => (
+      {votes?.map((vote, voteIdx) => (
         <li key={vote.id} className="relative flex gap-x-4">
           <div
             className={classNames(

@@ -7,8 +7,6 @@ import { Menu, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { classNames } from "~/utils/tailwind";
 import ActionLabel from "./action-label";
-import AddressLink from "~/components/address-link";
-import { format } from "date-fns";
 import NewVote from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
 import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
@@ -16,6 +14,7 @@ import ErrorPage from "~/components/error-page";
 import toast from "react-hot-toast";
 import VoteList from "./vote-list";
 import { getVotesOfProposal } from "~/data/snapshot";
+import ProposalInfo from "~/components/proposal-info";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -32,7 +31,6 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     cycleStageLengths = spaceConfig.cycleStageLengths;
   }
 
-  // display whole votes list?
   const votes = await getVotesOfProposal(proposal.voteURL, 1000);
 
   return json({ proposal, votes, cycleStageLengths });
@@ -65,32 +63,13 @@ export default function Proposal() {
         </div>
 
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-10">
-          <div className="mx-auto flex max-w-2xl justify-between gap-x-8 gap-y-4 lg:mx-0 lg:max-w-none">
-            <div className="flex items-center gap-x-6">
-              <img
-                src={`https://cdn.stamp.fyi/avatar/${proposal.authorAddress}`}
-                alt=""
-                className="h-16 w-16 flex-none rounded-full ring-1 ring-gray-900/10"
-              />
-              <h1>
-                <div className="text-xl font-semibold leading-6 text-gray-900">
-                  {`${proposal.proposalId} ${proposal.title}`}
-                </div>
-
-                <div className="mt-1 flex flex-wrap gap-x-1 text-xs leading-5 text-gray-500">
-                  <span>by</span>
-                  <AddressLink address={proposal.authorAddress} />
-                  {proposal.coauthors?.map((addr) => (
-                    <AddressLink key={addr} address={addr} />
-                  ))}
-                </div>
-
-                <p className="flex gap-x-1 text-xs leading-5 text-gray-500">
-                  {`on ${format(proposal.lastEditedTime || proposal.createdTime || "", "LLL d, yyyy")} (GC-${proposal.governanceCycle})`}
-                </p>
-              </h1>
-            </div>
-            <div className="flex items-center gap-x-4 sm:gap-x-6">
+          <div className="mx-auto flex max-w-2xl flex-wrap justify-between gap-x-8 gap-y-4 lg:mx-0 lg:max-w-none">
+            <ProposalInfo
+              proposal={proposal}
+              votingInfo={votes?.proposal}
+              linkDisabled
+            />
+            <div className="flex items-center justify-end gap-x-4 sm:justify-center sm:gap-x-6">
               <button
                 type="button"
                 onClick={() => {
@@ -104,7 +83,7 @@ export default function Proposal() {
                     },
                   );
                 }}
-                className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"
+                className="text-sm font-semibold leading-6 text-gray-900 sm:block"
               >
                 Copy URL
               </button>
@@ -113,7 +92,7 @@ export default function Proposal() {
                   pathname: "../edit",
                   search: `?proposal=${proposal.hash}`,
                 }}
-                className="hidden text-sm font-semibold leading-6 text-gray-900 sm:block"
+                className="text-sm font-semibold leading-6 text-gray-900 sm:block"
               >
                 Edit
               </Link>
@@ -124,7 +103,7 @@ export default function Proposal() {
                 Vote
               </a>
 
-              <Menu as="div" className="relative sm:hidden">
+              {/* <Menu as="div" className="relative sm:hidden">
                 <Menu.Button className="-m-3 block p-3">
                   <span className="sr-only">More</span>
                   <EllipsisVerticalIcon
@@ -184,7 +163,7 @@ export default function Proposal() {
                     </Menu.Item>
                   </Menu.Items>
                 </Transition>
-              </Menu>
+              </Menu> */}
             </div>
           </div>
         </div>
@@ -224,7 +203,7 @@ export default function Proposal() {
                 />
               )}
             </ClientOnly>
-            <VoteList votes={votes} />
+            <VoteList votes={votes?.votes} />
           </div>
         </div>
       </div>

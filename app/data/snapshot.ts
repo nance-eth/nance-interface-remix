@@ -33,8 +33,17 @@ const votesOfProposalQuery = gql`
     }
 
     proposal(id: $id) {
-      choices
+      id
+      state
+      end
       type
+      choices
+      scores
+      votes
+      quorum
+      scores_total
+      ipfs
+      snapshot
     }
   }
 `;
@@ -69,7 +78,7 @@ export type SnapshotGraphqlProposalVotingInfo = {
   state: string;
   end: number;
   // voting type
-  type: string;
+  type: ProposalType;
   choices: string[];
   // scores by choice
   scores: number[];
@@ -105,26 +114,28 @@ export async function getVotingInfoOfProposals(
   return data.proposals;
 }
 
+interface VotesOfProposal {
+  votes: SnapshotGraphqlVote[];
+  proposal: SnapshotGraphqlProposalVotingInfo;
+}
+
 export async function getVotesOfProposal(
   id: string,
   first: number = 10,
   skip: number = 0,
   orderBy: "created" | "vp" = "created",
-): Promise<SnapshotGraphqlVote[]> {
+): Promise<VotesOfProposal | undefined> {
   if (!id) {
-    return [];
+    return undefined;
   }
 
   const variable = { id, skip, orderBy, first };
-  const data = await graphQLClient.request<{
-    votes: SnapshotGraphqlVote[];
-    proposal: {
-      choices?: string[];
-      type: ProposalType;
-    };
-  }>(votesOfProposalQuery, variable);
+  const data = await graphQLClient.request<VotesOfProposal>(
+    votesOfProposalQuery,
+    variable,
+  );
 
-  return data.votes.map((vote) => {
+  const votes = data.votes.map((vote) => {
     return {
       ...vote,
       choiceLabel: getChoiceLabel(
@@ -134,4 +145,9 @@ export async function getVotesOfProposal(
       ),
     };
   });
+
+  return {
+    votes,
+    proposal: data.proposal,
+  };
 }
