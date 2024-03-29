@@ -55,16 +55,20 @@ const items: ActionItem[] = [
   // More items...
 ];
 
-export default function ActionPalettes() {
+export default function ActionPalettes({
+  addAction,
+}: {
+  addAction: (action: Action) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<ActionItem>();
 
   return (
-    <>
+    <div className="mt-2">
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="relative mt-2 flex w-full flex-col items-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400"
+        className="relative mt-2 flex w-full flex-col items-center rounded-lg border-2 border-dashed border-gray-300 p-6 text-center hover:border-gray-400"
       >
         <SquaresPlusIcon className="h-14 w-14 text-gray-400" />
         <span className="mt-2 block text-sm font-semibold text-gray-900">
@@ -168,11 +172,13 @@ export default function ActionPalettes() {
       <PayoutActionForm
         open={selectedAction?.name === "Payout"}
         closeModal={() => setSelectedAction(undefined)}
+        addAction={addAction}
       />
       <TransferActionForm
         open={selectedAction?.name === "Transfer"}
         closeModal={() => setSelectedAction(undefined)}
+        addAction={addAction}
       />
-    </>
+    </div>
   );
 }

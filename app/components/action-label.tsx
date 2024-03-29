@@ -7,7 +7,7 @@ import {
   SpaceInfo,
   Transfer,
 } from "@nance/nance-sdk";
-import { useLoaderData, useOutletContext } from "@remix-run/react";
+import { useOutletContext } from "@remix-run/react";
 import { format } from "date-fns";
 import { formatEther } from "ethers";
 import AddressLink from "~/components/address-link";
@@ -16,9 +16,16 @@ import {
   parseFunctionAbiWithNamedArgs,
 } from "~/utils/contractFunction";
 import { scheduleOfCycle } from "~/utils/governanceCycle";
-import { loader } from "./route";
 
-export default function ActionLabel({ action }: { action: Action }) {
+export default function ActionLabel({
+  action,
+  proposalCycle,
+  cycleStageLengths,
+}: {
+  action: Action;
+  proposalCycle?: number | undefined;
+  cycleStageLengths?: number[] | undefined;
+}) {
   const comment = "// Unrecognized action, pls check";
 
   if (action.type === "Custom Transaction") {
@@ -28,7 +35,13 @@ export default function ActionLabel({ action }: { action: Action }) {
       />
     );
   } else if (action.type === "Payout") {
-    return <PayoutActionLabel payout={action.payload as Payout} />;
+    return (
+      <PayoutActionLabel
+        payout={action.payload as Payout}
+        proposalCycle={proposalCycle}
+        cycleStageLengths={cycleStageLengths}
+      />
+    );
   } else if (action.type === "Transfer") {
     return <TransferActionLabel transfer={action.payload as Transfer} />;
   } else if (action.type === "Reserve") {
@@ -115,11 +128,18 @@ function TransferActionLabel({ transfer }: { transfer: Transfer }) {
   );
 }
 
-function PayoutActionLabel({ payout }: { payout: Payout }) {
+function PayoutActionLabel({
+  payout,
+  proposalCycle,
+  cycleStageLengths,
+}: {
+  payout: Payout;
+  proposalCycle: number | undefined;
+  cycleStageLengths: number[] | undefined;
+}) {
   const { spaceInfo } = useOutletContext<{
     spaceInfo: SpaceInfo;
   }>();
-  const { proposal, cycleStageLengths } = useLoaderData<typeof loader>();
 
   const address = payout.address;
   const project = payout.project;
@@ -129,7 +149,7 @@ function PayoutActionLabel({ payout }: { payout: Payout }) {
     payout.count > 1 ? `${payout.amountUSD * payout.count} USD in total ` : "";
   if (cycleStageLengths) {
     const cycleDeltaWithProposal =
-      spaceInfo.currentCycle - (proposal.governanceCycle || 0);
+      spaceInfo.currentCycle - (proposalCycle || 0);
     const firstSchedule = scheduleOfCycle(
       cycleStageLengths,
       1 - cycleDeltaWithProposal,
@@ -143,7 +163,7 @@ function PayoutActionLabel({ payout }: { payout: Payout }) {
     explanationComment += `from ${format(firstSchedule.start, "LLL d, yyyy")} to ${format(lastSchedule.end, "LLL d, yyyy")}`;
   }
 
-  if (!project) {
+  if (payout.type === "address" || payout.type === "allocator") {
     return (
       <div>
         <p className="flex gap-x-1">
@@ -156,7 +176,6 @@ function PayoutActionLabel({ payout }: { payout: Payout }) {
   } else {
     return (
       <div>
-        <p className="text-gray-500">{explanationComment}</p>
         <p className="flex gap-x-1">
           <span>Pay</span>
           <a
@@ -165,7 +184,7 @@ function PayoutActionLabel({ payout }: { payout: Payout }) {
           >
             {`juicebox@${project}`}
           </a>
-          <span>{label}</span>
+          <span>{`${label} (${explanationComment})`}</span>
         </p>
       </div>
     );

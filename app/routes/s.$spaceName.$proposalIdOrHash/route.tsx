@@ -2,11 +2,6 @@ import { Link, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import MarkdownWithTOC from "./markdown-with-toc";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { Fragment } from "react";
-import { Menu, Transition } from "@headlessui/react";
-import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
-import { classNames } from "~/utils/tailwind";
-import ActionLabel from "./action-label";
 import NewVote from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
 import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
@@ -15,6 +10,7 @@ import toast from "react-hot-toast";
 import VoteList from "./vote-list";
 import { getVotesOfProposal } from "~/data/snapshot";
 import ProposalInfo from "~/components/proposal-info";
+import ActionLabel from "~/components/action-label";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -41,7 +37,7 @@ export function ErrorBoundary() {
 }
 
 export default function Proposal() {
-  const { proposal, votes } = useLoaderData<typeof loader>();
+  const { proposal, votes, cycleStageLengths } = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -102,68 +98,6 @@ export default function Proposal() {
               >
                 Vote
               </a>
-
-              {/* <Menu as="div" className="relative sm:hidden">
-                <Menu.Button className="-m-3 block p-3">
-                  <span className="sr-only">More</span>
-                  <EllipsisVerticalIcon
-                    className="h-5 w-5 text-gray-500"
-                    aria-hidden="true"
-                  />
-                </Menu.Button>
-
-                <Transition
-                  as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
-                >
-                  <Menu.Items className="absolute right-0 z-10 mt-0.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            toast.promise(
-                              navigator.clipboard.writeText(
-                                window.location.href,
-                              ),
-                              {
-                                loading: "Copying...",
-                                success: "Copied!",
-                                error: (err) =>
-                                  `${err?.error_description || err.toString()}`,
-                              },
-                            );
-                          }}
-                          className={classNames(
-                            active ? "bg-gray-50" : "",
-                            "block w-full px-3 py-1 text-left text-sm leading-6 text-gray-900",
-                          )}
-                        >
-                          Copy URL
-                        </button>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <Link
-                          to={{
-                            pathname: "../edit",
-                            search: `?proposal=${proposal.hash}`,
-                          }}
-                          className="block px-3 py-1 text-sm leading-6 text-gray-900"
-                        >
-                          Edit
-                        </Link>
-                      )}
-                    </Menu.Item>
-                  </Menu.Items>
-                </Transition>
-              </Menu> */}
             </div>
           </div>
         </div>
@@ -178,7 +112,12 @@ export default function Proposal() {
                 <p className="text-gray-400">Proposed Transactions</p>
                 <div className="mt-2 space-y-2 text-sm">
                   {proposal.actions?.map((action) => (
-                    <ActionLabel action={action} key={action.uuid} />
+                    <ActionLabel
+                      action={action}
+                      key={action.uuid}
+                      proposalCycle={proposal.governanceCycle}
+                      cycleStageLengths={cycleStageLengths}
+                    />
                   ))}
                 </div>
                 <div className="mt-2 w-full border-t border-gray-300" />

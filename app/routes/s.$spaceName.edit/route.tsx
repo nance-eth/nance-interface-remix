@@ -14,9 +14,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 // css for the Nance editor
 import "@nance/nance-editor/lib/editor.css";
 import invariant from "tiny-invariant";
-import { Proposal, getProposal } from "@nance/nance-sdk";
+import { Action, Proposal, getProposal } from "@nance/nance-sdk";
 import { Controller } from "react-hook-form";
-import ActionPalettes from "~/components/proposal-action/action-palettes";
+import ActionPalettes from "./action-palettes";
+import ActionList from "./action-list";
+import { useState } from "react";
 
 const schema = z.object({
   proposal: z.object({
@@ -36,6 +38,9 @@ function EditPageInternal() {
     IPFS_SECRET: string;
     loadedProposal?: Proposal;
   }>();
+  const [actions, setActions] = useState<Action[]>(
+    loadedProposal?.actions || [],
+  );
 
   const {
     handleSubmit,
@@ -127,7 +132,21 @@ function EditPageInternal() {
               >
                 Actions
               </label>
-              <ActionPalettes />
+              <ActionList
+                actions={actions}
+                removeAction={(i) => {
+                  const actionsCopy = actions.slice();
+                  actionsCopy.splice(i, 1);
+                  setActions(actionsCopy);
+                }}
+              />
+              <ActionPalettes
+                addAction={(action) => {
+                  const actionsCopy = actions.slice();
+                  actionsCopy.push(action);
+                  setActions(actionsCopy);
+                }}
+              />
             </div>
           </div>
         </div>
