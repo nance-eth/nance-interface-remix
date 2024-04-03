@@ -18,20 +18,13 @@ export default function MarkdownWithTOC({ body }: { body: string }) {
           [
             rehypeAutolinkHeadings,
             {
-              content(node: any) {
+              content() {
                 return [h("span.ml-2.hidden.group-hover:inline", "#")];
               },
               behavior: "append",
             },
           ],
         ]}
-        components={{
-          h2: ({ node, ...props }) => <h2 className="group" {...props} />,
-          h3: ({ node, ...props }) => <h3 className="group" {...props} />,
-          h4: ({ node, ...props }) => <h4 className="group" {...props} />,
-          h5: ({ node, ...props }) => <h5 className="group" {...props} />,
-          h6: ({ node, ...props }) => <h6 className="group" {...props} />,
-        }}
       >
         {body}
       </ReactMarkdown>

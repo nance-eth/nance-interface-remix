@@ -1,6 +1,6 @@
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { PlusIcon, QueueListIcon } from "@heroicons/react/24/solid";
-import { ProposalsPacket, SpaceInfo, getSpaceConfig } from "@nance/nance-sdk";
+import { SpaceInfo, getSpaceConfig } from "@nance/nance-sdk";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData, useOutletContext } from "@remix-run/react";
 import { format } from "date-fns";
@@ -53,7 +53,7 @@ export default function SpaceIndex() {
   const { cycleStageLengths, displayName } = useLoaderData<typeof loader>();
 
   const schedules = calculateRecent3Schedules(
-    cycleStageLengths,
+    cycleStageLengths || [],
     spaceInfo.currentEvent,
   );
 
@@ -138,7 +138,6 @@ export default function SpaceIndex() {
                 </h2>
 
                 <ul
-                  role="list"
                   className="mt-2 divide-y divide-gray-900/5 border-b border-gray-900/5"
                 >
                   {links.map((link, linkIdx) => (

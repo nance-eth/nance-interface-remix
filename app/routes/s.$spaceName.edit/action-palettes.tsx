@@ -9,6 +9,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { classNames } from "~/utils/tailwind";
 import { PayoutActionForm, TransferActionForm } from "./action-forms";
+import { Action } from "@nance/nance-sdk";
 
 export interface ActionItem {
   id: number;

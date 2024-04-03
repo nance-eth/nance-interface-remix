@@ -194,8 +194,8 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   invariant(params.spaceName, "Missing spaceName param");
 
   const url = new URL(request.url);
-  const proposalIdOrHash = url.searchParams.get("proposal");
-  if (proposalIdOrHash === null) {
+  const proposalIdOrUuid = url.searchParams.get("proposal");
+  if (proposalIdOrUuid === null) {
     return json({
       IPFS_GATEWAY: process.env.IPFS_GATEWAY,
       IPFS_ID: process.env.INFURA_IPFS_ID,
@@ -206,7 +206,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
   const proposal = await getProposal({
     space: params.spaceName,
-    hash: proposalIdOrHash,
+    uuid: proposalIdOrUuid,
   });
   return json({
     IPFS_GATEWAY: process.env.IPFS_GATEWAY,

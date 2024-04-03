@@ -14,11 +14,11 @@ import ActionLabel from "~/components/action-label";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
-  invariant(params.proposalIdOrHash, "Missing proposalIdOrHash param");
+  invariant(params.proposalIdOrUuid, "Missing proposalIdOrUuid param");
 
   const proposal = await getProposal({
     space: params.spaceName,
-    hash: params.proposalIdOrHash,
+    uuid: params.proposalIdOrUuid,
   });
 
   let cycleStageLengths;
@@ -86,7 +86,7 @@ export default function Proposal() {
               <Link
                 to={{
                   pathname: "../edit",
-                  search: `?proposal=${proposal.hash}`,
+                  search: `?proposal=${proposal.uuid}`,
                 }}
                 className="text-sm font-semibold leading-6 text-gray-900 sm:block"
               >

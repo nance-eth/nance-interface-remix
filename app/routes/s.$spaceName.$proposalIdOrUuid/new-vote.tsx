@@ -55,7 +55,7 @@ const VoteSchema = z.union([
   WeightedQuadraticVoteSchema,
   ApprovalRankedVoteSchema,
 ]);
-type VoteFormType = z.infer<typeof VoteSchema>;
+// type VoteFormType = z.infer<typeof VoteSchema>;
 
 // TODO only basic voting is supported
 export default function NewVote({
@@ -63,7 +63,7 @@ export default function NewVote({
   proposalSnapshotId,
 }: {
   snapshotSpace: string;
-  proposalSnapshotId: string;
+  proposalSnapshotId?: string;
 }) {
   const account = useAccount();
   const { trigger } = useCastVote();
@@ -83,21 +83,22 @@ export default function NewVote({
       toast.error(fromZodIssue(result.error.issues[0]).toString());
       return;
     }
-
-    toast.promise(
-      trigger({
-        space: snapshotSpace,
-        proposal: proposalSnapshotId,
-        choice: result.data.choice,
-        reason: result.data.reason,
-        type: "basic",
-      }).then((res) => revalidator.revalidate()),
-      {
-        loading: "Submiting...",
-        success: "Voted!",
-        error: (err) => `${err?.error_description || err.toString()}`,
-      },
-    );
+    if (proposalSnapshotId) {
+      toast.promise(
+        trigger({
+          space: snapshotSpace,
+          proposal: proposalSnapshotId,
+          choice: result.data.choice,
+          reason: result.data.reason,
+          type: "basic",
+        }).then(() => revalidator.revalidate()),
+        {
+          loading: "Submitting...",
+          success: "Voted!",
+          error: (err) => `${err?.error_description || err.toString()}`,
+        },
+      );
+    }
   }
 
   return (
