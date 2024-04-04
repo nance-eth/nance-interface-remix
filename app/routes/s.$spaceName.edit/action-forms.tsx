@@ -2,7 +2,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import toast from "react-hot-toast";
 import { Action, Payout, SpaceInfo, Transfer } from "@nance/nance-sdk";
@@ -11,10 +11,11 @@ import { getUnixTime } from "date-fns";
 import { useSafeTokenBalances } from "~/hooks/safe-token-balances";
 import { useOutletContext } from "@remix-run/react";
 import { formatBigUnits } from "~/utils/number";
+import ProjectSearch from "~/components/project-search";
 
 // Schema validation for inputs
 const PayoutSchema = z.object({
-  project: stringAsNonNegativeNumber,
+  project: z.number().min(0).default(0),
   address: z.string().length(42),
   amount: stringAsNonNegativeNumber,
   duration: stringAsNonNegativeNumber,
@@ -46,6 +47,7 @@ export function PayoutActionForm({
     trigger,
     getValues,
     reset,
+    control,
     formState: { errors },
   } = useForm<PayoutForm>({
     // Validate input when onBlur (lost focus)
@@ -118,12 +120,14 @@ export function PayoutActionForm({
                       >
                         Project
                       </label>
-                      <input
-                        type="number"
-                        {...register("project")}
-                        className="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                        defaultValue={0}
+                      <Controller
+                        control={control}
+                        name="project"
+                        render={({
+                          field: { onChange, onBlur, value, ref },
+                        }) => <ProjectSearch val={value} setVal={onChange} />}
                       />
+
                       <ErrorMessage
                         errors={errors}
                         name="project"
