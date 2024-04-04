@@ -18,6 +18,7 @@ import {
 import { scheduleOfCycle } from "~/utils/governanceCycle";
 import ProjectLink from "./project-link";
 import TokenSymbol from "./token-symbol";
+import { formatNumber } from "~/utils/number";
 
 export default function ActionLabel({
   action,
@@ -135,10 +136,12 @@ function PayoutActionLabel({
 
   const address = payout.address;
   const project = payout.project;
-  const label = `${payout.amountUSD} USD for ${payout.count} cycles`;
+  const label = `${formatNumber(payout.amountUSD)} USD for ${payout.count} cycles`;
 
   let explanationComment =
-    payout.count > 1 ? `${payout.amountUSD * payout.count} USD in total ` : "";
+    payout.count > 1
+      ? `${formatNumber(payout.amountUSD * payout.count)} USD in total `
+      : "";
   if (cycleStageLengths) {
     const cycleDeltaWithProposal =
       spaceInfo.currentCycle - (proposalCycle || 0);

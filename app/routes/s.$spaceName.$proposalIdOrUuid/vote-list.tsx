@@ -61,7 +61,7 @@ export default function VoteList({
                 <span className="font-medium text-gray-900">
                   <AddressLink address={vote.voter} />
                 </span>{" "}
-                voted {vote.choiceLabel} with {formatNumber(vote.vp)}
+                voted {vote.choiceLabel} with {formatNumber(vote.vp, true)}
               </p>
               <time
                 dateTime={fromUnixTime(vote.created).toISOString()}

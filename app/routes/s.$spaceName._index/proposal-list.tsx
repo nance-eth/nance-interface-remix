@@ -2,25 +2,15 @@ import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
   ArrowLongLeftIcon,
   ArrowLongRightIcon,
-  CalendarDaysIcon,
   DocumentMagnifyingGlassIcon,
   XMarkIcon,
-  BanknotesIcon,
 } from "@heroicons/react/24/outline";
 import { ProposalsPacket } from "@nance/nance-sdk";
 import { Link, useOutletContext, useSearchParams } from "@remix-run/react";
-import {
-  formatDistanceStrict,
-  formatDistanceToNow,
-  fromUnixTime,
-} from "date-fns";
-import AddressLink from "~/components/address-link";
-import ProposalStatusIcon from "~/components/proposal-status-icon";
+import { formatDistanceStrict } from "date-fns";
 import { classNames } from "~/utils/tailwind";
 import { duplicateAndSetParams } from "~/utils/url";
 import { SnapshotGraphqlProposalVotingInfo } from "~/data/snapshot";
-import { formatNumber } from "~/utils/number";
-import TokenSymbol from "~/components/token-symbol";
 import ProposalInfo from "~/components/proposal-info";
 
 function NoResults() {
@@ -85,7 +75,6 @@ export default function ProposalList() {
   const proposals = proposalsPacket.proposals.filter(
     (p) => searchMode || p.status !== "Archived",
   );
-  const prefix = proposalsPacket.proposalInfo.proposalIdPrefix;
   const hasMore = proposalsPacket.hasMore;
 
   // pagination
@@ -103,9 +92,7 @@ export default function ProposalList() {
   }
 
   return (
-    <ul
-      className="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl"
-    >
+    <ul className="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
       {proposals.map((proposal) => (
         <li
           key={proposal.uuid}

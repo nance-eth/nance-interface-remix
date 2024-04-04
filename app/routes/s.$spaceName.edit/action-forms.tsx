@@ -5,9 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import toast from "react-hot-toast";
-import { Action, Payout, Transfer } from "@nance/nance-sdk";
+import { Action, Payout, SpaceInfo, Transfer } from "@nance/nance-sdk";
 import { stringAsNonNegativeNumber } from "~/utils/zodSchema";
 import { getUnixTime } from "date-fns";
+import { useSafeTokenBalances } from "~/hooks/safe-token-balances";
+import { useOutletContext } from "@remix-run/react";
+import { formatBigUnits } from "~/utils/number";
 
 // Schema validation for inputs
 const PayoutSchema = z.object({
@@ -249,6 +252,13 @@ export function TransferActionForm({
     mode: "onBlur",
     resolver: transferResolver,
   });
+  const { spaceInfo } = useOutletContext<{ spaceInfo: SpaceInfo }>();
+  const { data } = useSafeTokenBalances(
+    spaceInfo.transactorAddress?.address || "",
+    spaceInfo.transactorAddress?.type === "safe" &&
+      spaceInfo.transactorAddress?.address !== undefined,
+  );
+  const tokenBalances = data?.filter((b) => b.token !== null);
 
   return (
     <Transition appear show={open} as={Fragment}>
@@ -314,12 +324,18 @@ export function TransferActionForm({
                       >
                         Token
                       </label>
-                      <input
-                        type="text"
+                      <select
                         {...register("contract")}
-                        className="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                        placeholder="0xEdf62C8A931e164E20f221f4c95397Fba4b6568A"
-                      />
+                        className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
+                      >
+                        {tokenBalances?.map((balance) => (
+                          <option
+                            key={balance.tokenAddress}
+                            value={balance.tokenAddress || ""}
+                          >{`${balance.token?.symbol} (balance: ${formatBigUnits(BigInt(balance.balance), balance.token?.decimals || 18, false)})`}</option>
+                        ))}
+                      </select>
+
                       <ErrorMessage
                         errors={errors}
                         name="contract"

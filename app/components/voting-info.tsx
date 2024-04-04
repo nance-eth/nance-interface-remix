@@ -16,7 +16,8 @@ export default function VotingInfo({
     votingInfo.quorum !== 0 ? `${quorumProgress}% of quorum, ` : "";
   const scoresLabel = votingInfo.choices
     .map(
-      (choice, index) => `${choice} ${formatNumber(votingInfo.scores[index])}`,
+      (choice, index) =>
+        `${choice} ${formatNumber(votingInfo.scores[index], true)}`,
     )
     .slice(0, 3)
     .join(", ");

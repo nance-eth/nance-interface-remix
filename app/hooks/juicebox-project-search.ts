@@ -55,7 +55,7 @@ export default function useJBMSearch(
   }, [queryParams]);
 
   const url = `https://juicebox.money/api/projects?${queryString()}`;
-  const { data, error } = useQuery({
+  const { data, error, isLoading } = useQuery({
     queryKey: [url, shouldFetch],
     queryFn: shouldFetch
       ? async () => {
@@ -69,11 +69,9 @@ export default function useJBMSearch(
       : skipToken,
   });
 
-  const loading = !data && !error;
-
   return {
     projects: data,
-    loading,
+    loading: isLoading,
     error,
     setQueryParams,
   };
