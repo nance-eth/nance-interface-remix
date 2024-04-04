@@ -63,7 +63,7 @@ export default function NewVote({
   proposalSnapshotId,
 }: {
   snapshotSpace: string;
-  proposalSnapshotId?: string;
+  proposalSnapshotId: string;
 }) {
   const account = useAccount();
   const { trigger } = useCastVote();
@@ -83,22 +83,21 @@ export default function NewVote({
       toast.error(fromZodIssue(result.error.issues[0]).toString());
       return;
     }
-    if (proposalSnapshotId) {
-      toast.promise(
-        trigger({
-          space: snapshotSpace,
-          proposal: proposalSnapshotId,
-          choice: result.data.choice,
-          reason: result.data.reason,
-          type: "basic",
-        }).then(() => revalidator.revalidate()),
-        {
-          loading: "Submitting...",
-          success: "Voted!",
-          error: (err) => `${err?.error_description || err.toString()}`,
-        },
-      );
-    }
+
+    toast.promise(
+      trigger({
+        space: snapshotSpace,
+        proposal: proposalSnapshotId,
+        choice: result.data.choice,
+        reason: result.data.reason,
+        type: "basic",
+      }).then(() => revalidator.revalidate()),
+      {
+        loading: "Submitting...",
+        success: "Voted!",
+        error: (err) => `${err?.error_description || err.toString()}`,
+      },
+    );
   }
 
   return (

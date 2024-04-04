@@ -127,23 +127,25 @@ export default function Proposal() {
           </div>
 
           {/* Votes */}
-          <div className="lg:col-start-3">
-            <h2
-              className="text-sm font-semibold leading-6 text-gray-900"
-              id="votes"
-            >
-              Votes
-            </h2>
-            <ClientOnly fallback={<p>loading</p>}>
-              {() => (
-                <NewVote
-                  snapshotSpace={"jbdao.eth"}
-                  proposalSnapshotId={proposal.voteURL}
-                />
-              )}
-            </ClientOnly>
-            <VoteList votes={votes?.votes} />
-          </div>
+          {proposal.voteURL && (
+            <div className="lg:col-start-3">
+              <h2
+                className="text-sm font-semibold leading-6 text-gray-900"
+                id="votes"
+              >
+                Votes
+              </h2>
+              <ClientOnly fallback={<p>loading</p>}>
+                {() => (
+                  <NewVote
+                    snapshotSpace={"jbdao.eth"}
+                    proposalSnapshotId={proposal.voteURL as string}
+                  />
+                )}
+              </ClientOnly>
+              <VoteList votes={votes?.votes} />
+            </div>
+          )}
         </div>
       </div>
     </>
