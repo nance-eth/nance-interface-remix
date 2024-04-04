@@ -62,7 +62,7 @@ export default function ProposalInfo({
 }: {
   proposal: Proposal;
   votingInfo: SnapshotGraphqlProposalVotingInfo | undefined;
-  linkDisabled: boolean;
+  linkDisabled?: boolean;
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-x-4 sm:flex-row">
@@ -73,7 +73,7 @@ export default function ProposalInfo({
           {!linkDisabled ? (
             <Link
               prefetch="intent"
-              to={proposal.proposalId?.toString() || proposal.hash}
+              to={proposal.proposalId?.toString() || proposal.uuid}
             >
               <span className="absolute inset-x-0 -top-px bottom-0" />
               {`${proposal.proposalId || "tbd"}: ${proposal.title}`}

@@ -7,7 +7,7 @@ import {
   XMarkIcon,
   BanknotesIcon,
 } from "@heroicons/react/24/outline";
-import { Payout, Proposal, ProposalsPacket, Transfer } from "@nance/nance-sdk";
+import { ProposalsPacket } from "@nance/nance-sdk";
 import { Link, useOutletContext, useSearchParams } from "@remix-run/react";
 import {
   formatDistanceStrict,
@@ -22,10 +22,6 @@ import { SnapshotGraphqlProposalVotingInfo } from "~/data/snapshot";
 import { formatNumber } from "~/utils/number";
 import TokenSymbol from "~/components/token-symbol";
 import ProposalInfo from "~/components/proposal-info";
-
-function getLastEditedTime(proposal: Proposal) {
-  return proposal.lastEditedTime || proposal.date || "";
-}
 
 function NoResults() {
   return (
@@ -108,17 +104,16 @@ export default function ProposalList() {
 
   return (
     <ul
-      role="list"
       className="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl"
     >
       {proposals.map((proposal) => (
         <li
-          key={proposal.hash}
+          key={proposal.uuid}
           className="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6"
         >
           <ProposalInfo
             proposal={proposal}
-            votingInfo={votingInfoMap[proposal.voteURL]}
+            votingInfo={votingInfoMap[proposal.voteURL || ""]}
           />
           <div className="hidden shrink-0 items-center gap-x-4 sm:flex">
             <div className="flex sm:flex-col sm:items-end">
@@ -135,9 +130,9 @@ export default function ProposalList() {
               ) : (
                 <p className="mt-1 text-xs leading-5 text-gray-500">
                   <span className="sr-only">Last edited</span>
-                  <time dateTime={getLastEditedTime(proposal)}>
+                  <time dateTime={proposal.lastEditedTime}>
                     {formatDistanceStrict(
-                      new Date(getLastEditedTime(proposal)),
+                      new Date(proposal.lastEditedTime),
                       new Date(),
                       { addSuffix: true },
                     )}

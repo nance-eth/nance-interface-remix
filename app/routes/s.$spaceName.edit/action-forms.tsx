@@ -377,7 +377,6 @@ export function TransferActionForm({
                               // FIXME attach automatically?
                               //   or not necessary anymore since we are attaching actions
                               //   into proposal text
-                              tokenName: "USDC?",
                               decimals: 6,
                             };
                             addAction({

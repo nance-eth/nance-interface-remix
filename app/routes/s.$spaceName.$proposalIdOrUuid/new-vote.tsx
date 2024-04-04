@@ -55,7 +55,7 @@ const VoteSchema = z.union([
   WeightedQuadraticVoteSchema,
   ApprovalRankedVoteSchema,
 ]);
-type VoteFormType = z.infer<typeof VoteSchema>;
+// type VoteFormType = z.infer<typeof VoteSchema>;
 
 // TODO only basic voting is supported
 export default function NewVote({
@@ -91,9 +91,9 @@ export default function NewVote({
         choice: result.data.choice,
         reason: result.data.reason,
         type: "basic",
-      }).then((res) => revalidator.revalidate()),
+      }).then(() => revalidator.revalidate()),
       {
-        loading: "Submiting...",
+        loading: "Submitting...",
         success: "Voted!",
         error: (err) => `${err?.error_description || err.toString()}`,
       },

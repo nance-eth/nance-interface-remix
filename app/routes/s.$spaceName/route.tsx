@@ -60,7 +60,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   });
   const snapshotIds = proposalsPacket.proposals
     .map((p) => p.voteURL)
-    .filter((v) => v?.length > 0);
+    .filter((v) => v !== undefined) as string[]; // force cast typescript not recognizing removal of undefined
   const votingInfos = await getVotingInfoOfProposals(snapshotIds);
   const votingInfoMap: { [key: string]: SnapshotGraphqlProposalVotingInfo } =
     {};
@@ -87,7 +87,6 @@ export default function SpaceLayout() {
     proposalsPacket,
     votingInfoMap,
     keyword,
-    page,
     chainId,
     searchMode,
   } = useLoaderData<typeof loader>();
@@ -145,7 +144,7 @@ export default function SpaceLayout() {
                         <div className="flex space-x-4">
                           <NavLink
                             to={`/s/${spaceInfo.name}`}
-                            className={({ isActive, isPending }) =>
+                            className={({ isActive }) =>
                               classNames(
                                 isActive
                                   ? "bg-indigo-700 text-white"
@@ -160,7 +159,7 @@ export default function SpaceLayout() {
 
                           <NavLink
                             to={`/`}
-                            className={({ isActive, isPending }) =>
+                            className={({ isActive }) =>
                               classNames(
                                 isActive
                                   ? "bg-indigo-700 text-white"

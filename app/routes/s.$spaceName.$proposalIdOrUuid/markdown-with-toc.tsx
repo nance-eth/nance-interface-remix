@@ -18,7 +18,7 @@ export default function MarkdownWithTOC({ body }: { body: string }) {
           [
             rehypeAutolinkHeadings,
             {
-              content(node: any) {
+              content() {
                 return [h("span.ml-2.hidden.group-hover:inline", "#")];
               },
               behavior: "append",

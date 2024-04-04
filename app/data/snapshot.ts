@@ -120,7 +120,7 @@ interface VotesOfProposal {
 }
 
 export async function getVotesOfProposal(
-  id: string,
+  id?: string,
   first: number = 10,
   skip: number = 0,
   orderBy: "created" | "vp" = "created",
