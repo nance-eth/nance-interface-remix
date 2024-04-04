@@ -16,6 +16,7 @@ import {
   parseFunctionAbiWithNamedArgs,
 } from "~/utils/contractFunction";
 import { scheduleOfCycle } from "~/utils/governanceCycle";
+import ProjectLink from "./project-link";
 
 export default function ActionLabel({
   action,
@@ -60,7 +61,7 @@ function ReserveEntryLabel({ split }: { split: JBSplitStruct }) {
   const percent = split.percent as string;
   const label = `Reserve ${(parseInt(percent) / 10000000).toFixed(2)}% to`;
 
-  if (split.projectId === 0) {
+  if (split.projectId === "0") {
     return (
       <p className="flex gap-x-1">
         <span>{label}</span>
@@ -116,12 +117,7 @@ function TransferActionLabel({ transfer }: { transfer: Transfer }) {
       </a>
       <p className="ml-4">
         {label1}
-        <a
-          href={`https://etherscan.io/address/${transfer.to}`}
-          className="hover:underline"
-        >
-          {transfer.to}
-        </a>
+        <AddressLink address={transfer.to} />
         {label2}
       </p>
     </div>
@@ -164,17 +160,12 @@ function PayoutActionLabel({
   }
   if (explanationComment) explanationComment = ` (${explanationComment})`;
 
-  if (payout.project !== undefined && payout.project > 0) {
+  if (project !== undefined && project > 0) {
     return (
       <div>
         <p className="flex gap-x-1">
           <span>Pay</span>
-          <a
-            href={`https://juicebox.money/v2/p/${project}`}
-            className="hover:underline"
-          >
-            {`juicebox@${project}`}
-          </a>
+          <ProjectLink projectId={project} />
           <span>{`${label}${explanationComment}`}</span>
         </p>
       </div>
