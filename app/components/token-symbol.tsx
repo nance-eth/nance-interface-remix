@@ -8,7 +8,12 @@ export function TokenResolvedSymbol({
 }: {
   address: string | undefined;
 }) {
-  const { id: chainId } = useChainConfigOfSpace();
+  const {
+    id: chainId,
+    blockExplorers: {
+      default: { url },
+    },
+  } = useChainConfigOfSpace();
   const { data: tokenSymbol } = useReadContract({
     address: address as `0x${string}`,
     abi: erc20Abi,
@@ -16,7 +21,11 @@ export function TokenResolvedSymbol({
     chainId,
   });
 
-  return <span>{tokenSymbol || "TOKEN"}</span>;
+  return (
+    <a href={`${url}/address/${address}`} className="break-all hover:underline">
+      {tokenSymbol || "TOKEN"}
+    </a>
+  );
 }
 
 export default function TokenSymbol({

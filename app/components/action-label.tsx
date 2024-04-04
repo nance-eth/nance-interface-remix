@@ -17,6 +17,7 @@ import {
 } from "~/utils/contractFunction";
 import { scheduleOfCycle } from "~/utils/governanceCycle";
 import ProjectLink from "./project-link";
+import TokenSymbol from "./token-symbol";
 
 export default function ActionLabel({
   action,
@@ -109,17 +110,12 @@ function TransferActionLabel({ transfer }: { transfer: Transfer }) {
 
   return (
     <div>
-      <a
-        href={`https://etherscan.io/address/${contract}`}
-        className="hover:underline"
-      >
-        {contract || "<native>"}
-      </a>
-      <p className="ml-4">
+      <TokenSymbol address={contract} />
+      <span className="">
         {label1}
         <AddressLink address={transfer.to} />
         {label2}
-      </p>
+      </span>
     </div>
   );
 }
