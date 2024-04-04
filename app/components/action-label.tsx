@@ -162,18 +162,9 @@ function PayoutActionLabel({
     );
     explanationComment += `from ${format(firstSchedule.start, "LLL d, yyyy")} to ${format(lastSchedule.end, "LLL d, yyyy")}`;
   }
+  if (explanationComment) explanationComment = ` (${explanationComment})`;
 
-  if (payout.type === "address" || payout.type === "allocator") {
-    return (
-      <div>
-        <p className="flex gap-x-1">
-          <span>Pay</span>
-          <AddressLink address={address} />
-          <span>{`${label} (${explanationComment})`}</span>
-        </p>
-      </div>
-    );
-  } else {
+  if (payout.project !== undefined && payout.project > 0) {
     return (
       <div>
         <p className="flex gap-x-1">
@@ -184,7 +175,17 @@ function PayoutActionLabel({
           >
             {`juicebox@${project}`}
           </a>
-          <span>{`${label} (${explanationComment})`}</span>
+          <span>{`${label}${explanationComment}`}</span>
+        </p>
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <p className="flex gap-x-1">
+          <span>Pay</span>
+          <AddressLink address={address} />
+          <span>{`${label}${explanationComment}`}</span>
         </p>
       </div>
     );
