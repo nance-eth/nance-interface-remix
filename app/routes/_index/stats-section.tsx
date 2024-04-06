@@ -3,13 +3,13 @@ import { SpaceInfo } from "@nance/nance-sdk";
 export default function StatsSection({ data }: { data?: SpaceInfo[] }) {
   const totalProposals =
     data?.map((space) => space.nextProposalId - 1).reduce((a, b) => a + b, 0) ||
-    656;
+    794;
   const totalSpaces = data?.length || 14;
 
   const stats = [
-    { id: 1, name: "Total Votes", value: "1,858" },
+    { id: 1, name: "Total Votes", value: "2,395" },
     { id: 2, name: "Total Proposals", value: totalProposals },
-    { id: 3, name: "Unique Voters", value: "121" },
+    { id: 3, name: "Unique Voters", value: "184" },
     { id: 4, name: "Spaces", value: totalSpaces },
   ];
 
