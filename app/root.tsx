@@ -19,6 +19,7 @@ import ErrorPage from "./components/error-page";
 import { Toaster } from "react-hot-toast";
 import { classNames } from "./utils/tailwind";
 import Footer from "./components/footer";
+import { Analytics } from "@vercel/analytics/react";
 
 export const links: LinksFunction = () => [
   {
@@ -64,6 +65,7 @@ export default function App() {
         </ClientOnly>
         <Footer commit={commitSha} />
         <Toaster position="top-right" />
+        <Analytics />
 
         <ScrollRestoration />
         <Scripts />
