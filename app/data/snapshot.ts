@@ -11,7 +11,7 @@ const graphQLClient = new GraphQLClient(endpoint, {
 
 const votesOfProposalQuery = gql`
   query votesOfProposal(
-    $id: String
+    $id: String!
     $skip: Int
     $orderBy: String
     $first: Int
