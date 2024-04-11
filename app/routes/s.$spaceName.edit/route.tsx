@@ -17,7 +17,7 @@ import invariant from "tiny-invariant";
 import {
   Action,
   Proposal,
-  ProposalUpdateRequest,
+  ProposalUploadRequest,
   getProposal,
 } from "@nance/nance-sdk";
 import { Controller, useForm } from "react-hook-form";
@@ -105,6 +105,7 @@ function EditPageInternal() {
                   control={control}
                   render={({ field: { onChange } }) => (
                     <NanceEditor
+                      initialValue={loadedProposal?.body || TEMPLATE}
                       fileUploadIPFS={
                         IPFS_GATEWAY && IPFS_ID && IPFS_SECRET
                           ? {
@@ -190,21 +191,32 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
   const url = new URL(request.url);
   const proposalIdOrUuid = url.searchParams.get("proposal");
   const data: FormData = await request.json();
-  const uploadPayload: ProposalUpdateRequest = {
-    space: params.spaceName,
-    proposal: {
-      title: data.title,
-      body: data.body,
-      status: data.status,
-      actions: [],
-    },
-  };
 
   let ret;
   if (proposalIdOrUuid) {
-    ret = await updateProposal(uploadPayload, proposalIdOrUuid);
+    ret = await updateProposal(
+      {
+        space: params.spaceName,
+        proposal: {
+          uuid: proposalIdOrUuid,
+          title: data.title,
+          body: data.body,
+          status: data.status,
+          actions: [],
+        },
+      },
+      proposalIdOrUuid,
+    );
   } else {
-    ret = await newProposal(uploadPayload);
+    ret = await newProposal({
+      space: params.spaceName,
+      proposal: {
+        title: data.title,
+        body: data.body,
+        status: data.status,
+        actions: [],
+      },
+    });
   }
 
   if (ret.success) {

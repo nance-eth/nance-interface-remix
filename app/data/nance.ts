@@ -1,5 +1,6 @@
 import {
   APIResponse,
+  ProposalUpdateRequest,
   ProposalUploadPayload,
   ProposalUploadRequest,
 } from "@nance/nance-sdk";
@@ -25,7 +26,7 @@ export async function newProposal(args: ProposalUploadRequest) {
 }
 
 export async function updateProposal(
-  args: ProposalUploadRequest,
+  args: ProposalUpdateRequest,
   proposalId: string,
 ) {
   const res = await fetch(`${endpoint}${args.space}/proposal/${proposalId}`, {
