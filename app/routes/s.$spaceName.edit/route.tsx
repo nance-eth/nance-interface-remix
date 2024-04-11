@@ -3,6 +3,7 @@ import {
   LinksFunction,
   LoaderFunctionArgs,
   json,
+  redirect,
 } from "@remix-run/node";
 import { ClientOnly } from "remix-utils/client-only";
 import { cssBundleHref } from "@remix-run/css-bundle";
@@ -13,16 +14,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 // css for the Nance editor
 import "@nance/nance-editor/lib/editor.css";
 import invariant from "tiny-invariant";
-import { Action, Proposal, getProposal } from "@nance/nance-sdk";
+import {
+  Action,
+  Proposal,
+  ProposalUpdateRequest,
+  getProposal,
+} from "@nance/nance-sdk";
 import { Controller, useForm } from "react-hook-form";
 import ActionPalettes from "./action-palettes";
 import ActionList from "./action-list";
 import { useState } from "react";
 import PreviewForm from "./preview";
+import { newProposal, updateProposal } from "~/data/nance";
 
 const schema = z.object({
   title: z.string().min(1),
   body: z.string().min(1),
+  status: z.string(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -44,6 +52,11 @@ function EditPageInternal() {
   const { getValues, register, control } = useForm<FormData>({
     mode: "onBlur",
     resolver,
+    defaultValues: {
+      title: loadedProposal?.title || "Proposal Title",
+      body: loadedProposal?.body || TEMPLATE,
+      status: loadedProposal?.status || "Discussion",
+    },
   });
 
   return (
@@ -63,7 +76,7 @@ function EditPageInternal() {
           <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="sm:col-span-4">
               <label
-                htmlFor="proposal.title"
+                htmlFor="title"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Title
@@ -72,9 +85,7 @@ function EditPageInternal() {
                 <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
                   <input
                     type="text"
-                    {...register("title", {
-                      value: loadedProposal?.title || "Proposal Title",
-                    })}
+                    {...register("title")}
                     className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -83,7 +94,7 @@ function EditPageInternal() {
 
             <div className="col-span-full">
               <label
-                htmlFor="proposal.body"
+                htmlFor="body"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Body
@@ -92,12 +103,8 @@ function EditPageInternal() {
                 <Controller
                   name="body"
                   control={control}
-                  defaultValue={loadedProposal?.body || TEMPLATE}
                   render={({ field: { onChange } }) => (
                     <NanceEditor
-                      initialValue={
-                        loadedProposal ? loadedProposal.body : TEMPLATE
-                      }
                       fileUploadIPFS={
                         IPFS_GATEWAY && IPFS_ID && IPFS_SECRET
                           ? {
@@ -177,12 +184,34 @@ export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const data = await request.json();
-  console.debug("remix form", data);
+export const action = async ({ params, request }: ActionFunctionArgs) => {
+  invariant(params.spaceName, "Missing spaceName param");
 
-  // Do something with the data
-  return json(data);
+  const url = new URL(request.url);
+  const proposalIdOrUuid = url.searchParams.get("proposal");
+  const data: FormData = await request.json();
+  const uploadPayload: ProposalUpdateRequest = {
+    space: params.spaceName,
+    proposal: {
+      title: data.title,
+      body: data.body,
+      status: data.status,
+      actions: [],
+    },
+  };
+
+  let ret;
+  if (proposalIdOrUuid) {
+    ret = await updateProposal(uploadPayload, proposalIdOrUuid);
+  } else {
+    ret = await newProposal(uploadPayload);
+  }
+
+  if (ret.success) {
+    return redirect(`/s/${params.spaceName}/${ret.data.uuid}`);
+  } else {
+    throw json(ret.error, { status: 500 });
+  }
 };
 
 export async function loader({ params, request }: LoaderFunctionArgs) {

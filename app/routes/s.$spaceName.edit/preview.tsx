@@ -20,7 +20,7 @@ export default function PreviewForm({
 }) {
   const submit = useSubmit();
 
-  const modifiedBody = `## Actions\n${actions.map((a) => "* " + actionToMarkdown(a)).join("\n")}\n\n${body}`;
+  const modifiedBody = `${body}\n\n## Actions\n${actions.map((a) => "* " + actionToMarkdown(a)).join("\n")}`;
   console.debug("a", { modifiedBody });
 
   return (
