@@ -19,3 +19,25 @@ export const stringAsNonNegativeNumber = z.string().transform((val, ctx) => {
   }
   return parsed;
 });
+
+export const stringAsNonNegativeBigInt = z.string().transform((val, ctx) => {
+  try {
+    const parsed = BigInt(val);
+    if (parsed < 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Can't be less than 0",
+      });
+
+      return z.NEVER;
+    }
+    return parsed;
+  } catch {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Not a bigint",
+    });
+
+    return z.NEVER;
+  }
+});

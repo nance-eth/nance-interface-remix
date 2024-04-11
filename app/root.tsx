@@ -20,6 +20,7 @@ import { Toaster } from "react-hot-toast";
 import { classNames } from "./utils/tailwind";
 import Footer from "./components/footer";
 import { Analytics } from "@vercel/analytics/react";
+import { WindowEnv } from "./utils/env";
 
 export const links: LinksFunction = () => [
   {
@@ -31,16 +32,18 @@ export const links: LinksFunction = () => [
 ];
 
 export async function loader() {
-  const wcProjectId = process.env.WALLETCONNECT_PROJECT_ID;
   const commitSha = process.env.VERCEL_GIT_COMMIT_SHA;
+  const ENV: WindowEnv = {
+    WALLETCONNECT_PROJECT_ID: process.env.WALLETCONNECT_PROJECT_ID,
+  };
   return json({
-    wcProjectId,
+    ENV,
     commitSha,
   });
 }
 
 export default function App() {
-  const { wcProjectId, commitSha } = useLoaderData<typeof loader>();
+  const { ENV, commitSha } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
 
   return (
@@ -58,7 +61,7 @@ export default function App() {
       >
         <ClientOnly fallback={<Outlet />}>
           {() => (
-            <Web3Provider wcProjectId={wcProjectId}>
+            <Web3Provider>
               <Outlet />
             </Web3Provider>
           )}
@@ -66,6 +69,12 @@ export default function App() {
         <Footer commit={commitSha} />
         <Toaster position="top-right" />
         <Analytics />
+
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(ENV)}`,
+          }}
+        />
 
         <ScrollRestoration />
         <Scripts />

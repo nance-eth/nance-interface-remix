@@ -8,8 +8,14 @@ import {
   SquaresPlusIcon,
 } from "@heroicons/react/24/solid";
 import { classNames } from "~/utils/tailwind";
-import { PayoutActionForm, TransferActionForm } from "./action-forms";
-import { Action } from "@nance/nance-sdk";
+import {
+  CustomTransactionActionForm,
+  PayoutActionForm,
+  TransferActionForm,
+} from "./action-forms";
+import { Action, SpaceInfo } from "@nance/nance-sdk";
+import { SafeInjectProvider } from "~/components/SafeInjectIframeCard/context/SafeInjectedContext";
+import { useOutletContext } from "@remix-run/react";
 
 export interface ActionItem {
   id: number;
@@ -38,21 +44,21 @@ const items: ActionItem[] = [
   //   icon: UserGroupIcon,
   // },
   {
-    id: 3,
+    id: 2,
     name: "Transfer",
     description: "Transfer ERC-20 tokens from Safe.",
     url: "#",
     color: "bg-blue-500",
     icon: ArrowsUpDownIcon,
   },
-  // {
-  //   id: 4,
-  //   name: "Custom Transaction",
-  //   description: "Execute custom transaction with Safe.",
-  //   url: "#",
-  //   color: "bg-blue-500",
-  //   icon: BoltIcon,
-  // },
+  {
+    id: 3,
+    name: "Custom Transaction",
+    description: "Execute custom transaction with Safe.",
+    url: "#",
+    color: "bg-blue-500",
+    icon: BoltIcon,
+  },
   // More items...
 ];
 
@@ -63,6 +69,8 @@ export default function ActionPalettes({
 }) {
   const [open, setOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<ActionItem>();
+
+  const { spaceInfo } = useOutletContext<{ spaceInfo: SpaceInfo }>();
 
   return (
     <div className="mt-2">
@@ -180,6 +188,13 @@ export default function ActionPalettes({
         closeModal={() => setSelectedAction(undefined)}
         addAction={addAction}
       />
+      <SafeInjectProvider defaultAddress={spaceInfo.transactorAddress?.address}>
+        <CustomTransactionActionForm
+          open={selectedAction?.name === "Custom Transaction"}
+          closeModal={() => setSelectedAction(undefined)}
+          addAction={addAction}
+        />
+      </SafeInjectProvider>
     </div>
   );
 }
