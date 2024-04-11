@@ -8,23 +8,21 @@ import { ClientOnly } from "remix-utils/client-only";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import NanceEditor from "~/components/MarkdownEditor.client";
 import { Form, useLoaderData } from "@remix-run/react";
-import { useRemixForm, getValidatedFormData } from "remix-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 // css for the Nance editor
 import "@nance/nance-editor/lib/editor.css";
 import invariant from "tiny-invariant";
 import { Action, Proposal, getProposal } from "@nance/nance-sdk";
-import { Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import ActionPalettes from "./action-palettes";
 import ActionList from "./action-list";
 import { useState } from "react";
+import PreviewForm from "./preview";
 
 const schema = z.object({
-  proposal: z.object({
-    title: z.string().min(1),
-    body: z.string().min(1),
-  }),
+  title: z.string().min(1),
+  body: z.string().min(1),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -41,19 +39,15 @@ function EditPageInternal() {
   const [actions, setActions] = useState<Action[]>(
     loadedProposal?.actions || [],
   );
+  const [previewEnabled, setPreviewEnabled] = useState(false);
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    register,
-    control,
-  } = useRemixForm<FormData>({
-    mode: "onSubmit",
+  const { getValues, register, control } = useForm<FormData>({
+    mode: "onBlur",
     resolver,
   });
 
   return (
-    <Form onSubmit={handleSubmit} className="p-6 lg:p-12">
+    <Form className="p-6 lg:p-12">
       <div className="space-y-12">
         <div className="border-b border-gray-900/10 pb-12">
           <h2 className="text-lg font-semibold leading-7 text-gray-900">
@@ -78,7 +72,7 @@ function EditPageInternal() {
                 <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
                   <input
                     type="text"
-                    {...register("proposal.title", {
+                    {...register("title", {
                       value: loadedProposal?.title || "Proposal Title",
                     })}
                     className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
@@ -96,7 +90,7 @@ function EditPageInternal() {
               </label>
               <div className="mt-2">
                 <Controller
-                  name="proposal.body"
+                  name="body"
                   control={control}
                   defaultValue={loadedProposal?.body || TEMPLATE}
                   render={({ field: { onChange } }) => (
@@ -160,12 +154,21 @@ function EditPageInternal() {
           Cancel
         </button>
         <button
-          type="submit"
+          type="button"
+          onClick={() => setPreviewEnabled(true)}
           className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           Publish
         </button>
       </div>
+
+      <PreviewForm
+        open={previewEnabled}
+        closeModal={() => setPreviewEnabled(false)}
+        title={getValues("title")}
+        body={getValues("body")}
+        actions={actions}
+      />
     </Form>
   );
 }
@@ -175,16 +178,8 @@ export const links: LinksFunction = () => [
 ];
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const {
-    errors,
-    data,
-    receivedValues: defaultValues,
-  } = await getValidatedFormData<FormData>(request, resolver);
-  console.debug("remix form", errors, data, defaultValues);
-  if (errors) {
-    // The keys "errors" and "defaultValue" are picked up automatically by useRemixForm
-    return json({ errors, defaultValues });
-  }
+  const data = await request.json();
+  console.debug("remix form", data);
 
   // Do something with the data
   return json(data);

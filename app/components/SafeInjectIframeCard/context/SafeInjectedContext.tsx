@@ -108,7 +108,6 @@ export const SafeInjectProvider: React.FunctionComponent<FCProps> = ({
         threshold: 1,
         isReadOnly: false,
       };
-      console.debug("ret", ret);
       return ret;
     });
 

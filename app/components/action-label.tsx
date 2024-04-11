@@ -105,18 +105,14 @@ function ReserveActionLabel({ reserve }: { reserve: Reserve }) {
 
 function TransferActionLabel({ transfer }: { transfer: Transfer }) {
   const contract = transfer.contract;
-  const functionName = "transfer";
-  const label1 = `.${functionName}(to: `;
-  const label2 = `, amount: ${transfer.amount})`;
 
   return (
-    <div>
+    <div className="flex space-x-1">
+      <span>Transfer</span>
+      <span>{formatNumber(transfer.amount)}</span>
       <TokenSymbol address={contract} />
-      <span className="">
-        {label1}
-        <AddressLink address={transfer.to} />
-        {label2}
-      </span>
+      <span>to</span>
+      <AddressLink address={transfer.to} />
     </div>
   );
 }
