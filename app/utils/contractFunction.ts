@@ -28,7 +28,22 @@ export function parseFunctionAbiWithNamedArgs(
       // it's new struct
       const argStruct = val;
       if (val.type === "uint256") {
-        dict.push([argStruct.name || "_", BigInt(argStruct.value).toString()]);
+        if (
+          (val.value as unknown as { hex: string; type: "BigNumber" }).type ===
+          "BigNumber"
+        ) {
+          dict.push([
+            argStruct.name || "_",
+            BigInt(
+              (val.value as unknown as { hex: string; type: "BigNumber" }).hex,
+            ).toString(),
+          ]);
+        } else {
+          dict.push([
+            argStruct.name || "_",
+            BigInt(argStruct.value).toString(),
+          ]);
+        }
       } else {
         dict.push([argStruct.name || "_", argStruct.value]);
       }
