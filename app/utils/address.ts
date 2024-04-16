@@ -7,3 +7,6 @@ export function shortenAddress(address: string | undefined) {
     address.substring(0, 6) + "..." + address.substring(address.length - 4)
   );
 }
+
+export const DEPLOY_CONTRACT_FAKE_ADDRESS =
+  "0xDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCDC";
