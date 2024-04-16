@@ -17,7 +17,7 @@ import invariant from "tiny-invariant";
 import {
   Action,
   Proposal,
-  ProposalUploadRequest,
+  ProposalStatusNames,
   getProposal,
 } from "@nance/nance-sdk";
 import { Controller, useForm } from "react-hook-form";
@@ -26,11 +26,16 @@ import ActionList from "./action-list";
 import { useState } from "react";
 import PreviewForm from "./preview";
 import { newProposal, updateProposal } from "~/data/nance";
+import { isAddress } from "viem";
+import { uuid } from "~/utils/uuid";
 
 const schema = z.object({
+  uuid: z.string(),
   title: z.string().min(1),
   body: z.string().min(1),
-  status: z.string(),
+  status: z.enum(ProposalStatusNames),
+  uploaderAddress: z.string().refine(isAddress),
+  uploaderSignature: z.string(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -53,6 +58,7 @@ function EditPageInternal() {
     mode: "onBlur",
     resolver,
     defaultValues: {
+      uuid: loadedProposal?.uuid || uuid(),
       title: loadedProposal?.title || "Proposal Title",
       body: loadedProposal?.body || TEMPLATE,
       status: loadedProposal?.status || "Discussion",
@@ -173,6 +179,7 @@ function EditPageInternal() {
       <PreviewForm
         open={previewEnabled}
         closeModal={() => setPreviewEnabled(false)}
+        uuid={getValues("uuid")}
         title={getValues("title")}
         body={getValues("body")}
         actions={actions}
@@ -191,7 +198,6 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
   const url = new URL(request.url);
   const proposalIdOrUuid = url.searchParams.get("proposal");
   const data: FormData = await request.json();
-
   let ret;
   if (proposalIdOrUuid) {
     ret = await updateProposal(
@@ -211,11 +217,13 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     ret = await newProposal({
       space: params.spaceName,
       proposal: {
+        uuid: data.uuid,
         title: data.title,
         body: data.body,
         status: data.status,
-        actions: [],
       },
+      uploaderAddress: data.uploaderAddress,
+      uploaderSignature: data.uploaderAddress,
     });
   }
 

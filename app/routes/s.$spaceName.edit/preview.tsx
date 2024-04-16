@@ -4,25 +4,30 @@ import { Fragment } from "react";
 import MarkdownWithTOC from "../s.$spaceName.$proposalIdOrUuid/markdown-with-toc";
 import { useSubmit } from "@remix-run/react";
 import { actionToMarkdown } from "~/utils/actionParser";
+import signProposal from "~/hooks/sign-proposal";
+import { useAccount } from "wagmi";
 
 export default function PreviewForm({
   open,
   closeModal,
+  uuid,
   title,
   body,
   actions,
 }: {
   open: boolean;
   closeModal: () => void;
+  uuid: string;
   title: string;
   body: string;
   actions: Action[];
 }) {
   const submit = useSubmit();
+  const { trigger } = signProposal();
 
   const modifiedBody = `${body}\n\n## Actions\n${actions.map((a) => "* " + actionToMarkdown(a)).join("\n")}`;
   console.debug("a", { modifiedBody });
-
+  const { address } = useAccount();
   return (
     <Transition appear show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -73,11 +78,15 @@ export default function PreviewForm({
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      submit(
-                        { title, body: modifiedBody },
-                        { method: "post", encType: "application/json" },
-                      );
+                    onClick={async () => {
+                      const signature = await trigger({ uuid, title, body: modifiedBody, status: "Discussion" });
+                      console.log("SIGNATURE", signature);
+                      if (address && signature) {
+                        submit(
+                          { title, body: modifiedBody, signature, address },
+                          { method: "post", encType: "application/json" },
+                        );
+                      }
                     }}
                     className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200"
                   >

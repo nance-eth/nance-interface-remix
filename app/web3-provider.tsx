@@ -21,7 +21,6 @@ export function Web3Provider({ children }: PropsWithChildren) {
       config,
     };
   });
-
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
