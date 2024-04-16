@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Action } from "@nance/nance-sdk";
+import { Action, SignNewProposal } from "@nance/nance-sdk";
 import { Fragment } from "react";
 import MarkdownWithTOC from "../s.$spaceName.$proposalIdOrUuid/markdown-with-toc";
 import { useSubmit } from "@remix-run/react";
@@ -79,11 +79,20 @@ export default function PreviewForm({
                   <button
                     type="button"
                     onClick={async () => {
-                      const signature = await trigger({ uuid, title, body: modifiedBody, status: "Discussion" });
-                      console.log("SIGNATURE", signature);
-                      if (address && signature) {
+                      const proposal: SignNewProposal = {
+                        uuid,
+                        title,
+                        body: modifiedBody,
+                        status: "Discussion",
+                      };
+                      const uploaderSignature = await trigger(proposal);
+                      if (address && uploaderSignature) {
                         submit(
-                          { title, body: modifiedBody, signature, address },
+                          {
+                            ...proposal,
+                            uploaderSignature,
+                            uploaderAddress: address,
+                          },
                           { method: "post", encType: "application/json" },
                         );
                       }

@@ -172,7 +172,7 @@ function EditPageInternal() {
           onClick={() => setPreviewEnabled(true)}
           className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          Publish
+          Review and sign
         </button>
       </div>
 
@@ -198,39 +198,21 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
   const url = new URL(request.url);
   const proposalIdOrUuid = url.searchParams.get("proposal");
   const data: FormData = await request.json();
-  let ret;
-  if (proposalIdOrUuid) {
-    ret = await updateProposal(
-      {
-        space: params.spaceName,
-        proposal: {
-          uuid: proposalIdOrUuid,
-          title: data.title,
-          body: data.body,
-          status: data.status,
-          actions: [],
-        },
-      },
-      proposalIdOrUuid,
-    );
-  } else {
-    ret = await newProposal({
-      space: params.spaceName,
-      proposal: {
-        uuid: data.uuid,
-        title: data.title,
-        body: data.body,
-        status: data.status,
-      },
-      uploaderAddress: data.uploaderAddress,
-      uploaderSignature: data.uploaderAddress,
-    });
-  }
+  const apiCall = proposalIdOrUuid ? updateProposal : newProposal;
+  const ret = await apiCall({
+    space: params.spaceName,
+    proposal: {
+      uuid: data.uuid,
+      title: data.title,
+      body: data.body,
+      status: data.status,
+    },
+    uploaderAddress: data.uploaderAddress,
+    uploaderSignature: data.uploaderSignature,
+  });
 
   if (ret.success) {
     return redirect(`/s/${params.spaceName}/${ret.data.uuid}`);
-  } else {
-    throw json(ret.error, { status: 500 });
   }
 };
 

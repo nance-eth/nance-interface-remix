@@ -27,9 +27,8 @@ export async function newProposal(args: ProposalUploadRequest) {
 
 export async function updateProposal(
   args: ProposalUpdateRequest,
-  proposalId: string,
 ) {
-  const res = await fetch(`${endpoint}${args.space}/proposal/${proposalId}`, {
+  const res = await fetch(`${endpoint}${args.space}/proposal/${args.proposal.uuid}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
