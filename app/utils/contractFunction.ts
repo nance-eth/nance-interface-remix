@@ -2,7 +2,8 @@ import { CustomTransactionArg } from "@nance/nance-sdk";
 import { Interface } from "ethers";
 
 // function abc(uint256 _param) => abc
-export function extractFunctionName(str: string) {
+export function extractFunctionName(str: string | null | undefined) {
+  if (!str) return "";
   return str.split("(")[0].split(" ").slice(-1)[0];
 }
 
@@ -10,7 +11,7 @@ export function parseFunctionAbiWithNamedArgs(
   functionAbi: string,
   args: CustomTransactionArg[],
 ) {
-  if (!args) return [];
+  if (!args || !functionAbi) return [];
 
   let abi = functionAbi;
   // compatiable with old minimal format functionName
