@@ -4,10 +4,11 @@ import {
   signatureTypes,
   signatureDomain,
   SignNewProposal,
+  SignatureTypes,
 } from "@nance/nance-sdk";
 
 
-export default function SignProposal() {
+export default function SignProposal(type?: SignatureTypes) {
   const { status } = useAccount();
   const { signTypedDataAsync } = useSignTypedData();
 
@@ -17,7 +18,7 @@ export default function SignProposal() {
         return await signTypedDataAsync({
           types: signatureTypes,
           domain: signatureDomain,
-          primaryType: "Proposal",
+          primaryType: type || "Proposal",
           message: {
             uuid: args.uuid,
             title: args.title,
