@@ -1477,10 +1477,10 @@
   dependencies:
     "@toast-ui/react-editor" "^3.2.3"
 
-"@nance/nance-sdk@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@nance/nance-sdk/-/nance-sdk-1.1.1.tgz#36134dd3c280de9ca4b11c514aa7c76419fb54a6"
-  integrity sha512-J8Pq4PgBW4bfhxOaUHRzhjAy3hZGDJbvC+xQoHd2Sxsnh7JOaGM3o/7VDTjo7vZwZuhn4yDZkBItl2O1B3aSdw==
+"@nance/nance-sdk@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@nance/nance-sdk/-/nance-sdk-1.1.3.tgz#35162fdb9f7a9a783aaaaa5421e6f56c73841a93"
+  integrity sha512-2ZNVDUgRVVlqPJOYJG9aNfs1cIYfMbRKcLVjJtSZf2xCuyd6GifZVEHdh8md/OduJFHLi3XXbaIcjsFg9xgSCg==
   dependencies:
     tslib "^2.6.2"
 
