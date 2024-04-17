@@ -7,7 +7,6 @@ import {
   SignatureTypes,
 } from "@nance/nance-sdk";
 
-
 export default function SignProposal(type?: SignatureTypes) {
   const { status } = useAccount();
   const { signTypedDataAsync } = useSignTypedData();
@@ -30,7 +29,7 @@ export default function SignProposal(type?: SignatureTypes) {
         throw new Error("wallet " + status);
       }
     },
-    [status, signTypedDataAsync],
+    [status, type, signTypedDataAsync]
   );
 
   return { trigger };
