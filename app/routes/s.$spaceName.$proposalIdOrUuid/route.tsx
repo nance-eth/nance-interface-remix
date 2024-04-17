@@ -11,10 +11,13 @@ import VoteList from "./vote-list";
 import { getVotesOfProposal } from "~/data/snapshot";
 import ProposalInfo from "~/components/proposal-info";
 import ActionLabel from "~/components/action-label";
+import { useEffect } from "react";
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
   invariant(params.proposalIdOrUuid, "Missing proposalIdOrUuid param");
+  const url = new URL(request.url);
+  const quote = url.searchParams.get("quote");
 
   const proposal = await getProposal({
     space: params.spaceName,
@@ -29,7 +32,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 
   const votes = await getVotesOfProposal(proposal.voteURL, 1000);
 
-  return json({ proposal, votes, cycleStageLengths });
+  return json({ proposal, votes, cycleStageLengths, quote });
 };
 
 export function ErrorBoundary() {
@@ -37,7 +40,8 @@ export function ErrorBoundary() {
 }
 
 export default function Proposal() {
-  const { proposal, votes, cycleStageLengths } = useLoaderData<typeof loader>();
+  const { proposal, votes, cycleStageLengths, quote } =
+    useLoaderData<typeof loader>();
 
   return (
     <>
@@ -123,7 +127,10 @@ export default function Proposal() {
                 <div className="mt-2 w-full border-t border-gray-300" />
               </div>
             )}
-            <MarkdownWithTOC body={proposal.body || "--- No content ---"} />
+            <MarkdownWithTOC
+              body={proposal.body || "--- No content ---"}
+              highlightPattern={quote || undefined}
+            />
           </div>
 
           {/* Votes */}
