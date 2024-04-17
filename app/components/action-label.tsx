@@ -19,6 +19,7 @@ import { scheduleOfCycle } from "~/utils/governanceCycle";
 import ProjectLink from "./project-link";
 import TokenSymbol from "./token-symbol";
 import { formatNumber } from "~/utils/number";
+import { DEPLOY_CONTRACT_FAKE_ADDRESS } from "~/utils/address";
 
 export default function ActionLabel({
   action,
@@ -184,6 +185,15 @@ function CustomTransactionActionLabel({
   customTransaction: CustomTransaction;
 }) {
   const contract = customTransaction.contract;
+
+  if (contract === DEPLOY_CONTRACT_FAKE_ADDRESS) {
+    return (
+      <div>
+        <p className="line-clamp-3">{`Deploy contract with input: ${customTransaction.args[0].value}`}</p>
+      </div>
+    );
+  }
+
   const functionName = extractFunctionName(customTransaction.functionName);
   const value =
     BigInt(customTransaction.value) > 0
@@ -200,7 +210,7 @@ function CustomTransactionActionLabel({
   return (
     <div>
       <AddressLink address={contract} />
-      <p className="ml-4">{label}</p>
+      <p className="ml-4 line-clamp-3">{label}</p>
     </div>
   );
 }

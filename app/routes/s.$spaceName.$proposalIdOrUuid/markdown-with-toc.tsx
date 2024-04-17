@@ -5,8 +5,15 @@ import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import ReactMarkdown from "react-markdown";
 import { h } from "hastscript";
+import rehypeHighlightText from "./highlight-text-plugin";
 
-export default function MarkdownWithTOC({ body }: { body: string }) {
+export default function MarkdownWithTOC({
+  body,
+  highlightPattern = undefined,
+}: {
+  body: string;
+  highlightPattern?: string;
+}) {
   return (
     <article className="prose prose-indigo prose-table:table-fixed mx-auto break-words text-gray-500">
       <ReactMarkdown
@@ -24,6 +31,7 @@ export default function MarkdownWithTOC({ body }: { body: string }) {
               behavior: "append",
             },
           ],
+          [rehypeHighlightText, highlightPattern],
         ]}
         components={{
           h2: ({ node, ...props }) => <h2 className="group" {...props} />,
