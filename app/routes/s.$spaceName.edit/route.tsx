@@ -206,6 +206,7 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
       title: data.title,
       body: data.body,
       status: data.status,
+      actions: [],
     },
     uploaderAddress: data.uploaderAddress,
     uploaderSignature: data.uploaderSignature,

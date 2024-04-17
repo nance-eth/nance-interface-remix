@@ -99,7 +99,7 @@ export default function ProposalList() {
           className="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6"
         >
           <ProposalInfo
-            proposal={proposal}
+            proposalPacket={{ ...proposal, proposalInfo: proposalsPacket.proposalInfo }}
             votingInfo={votingInfoMap[proposal.voteURL || ""]}
           />
           <div className="hidden shrink-0 items-center gap-x-4 sm:flex">
@@ -119,7 +119,7 @@ export default function ProposalList() {
                   <span className="sr-only">Last edited</span>
                   <time dateTime={proposal.lastEditedTime}>
                     {formatDistanceStrict(
-                      new Date(proposal.lastEditedTime),
+                      new Date(proposal.lastEditedTime || proposal.createdTime),
                       new Date(),
                       { addSuffix: true },
                     )}
