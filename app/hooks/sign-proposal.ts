@@ -7,29 +7,42 @@ import {
   SignatureTypes,
 } from "@nance/nance-sdk";
 
-export default function SignProposal(type?: SignatureTypes) {
+type SignDeleteProposal = {
+  uuid: string;
+};
+
+export default function SignProposal() {
   const { status } = useAccount();
   const { signTypedDataAsync } = useSignTypedData();
 
   const trigger = useCallback(
-    async (args: SignNewProposal) => {
+    async (
+      args: SignNewProposal | SignDeleteProposal,
+      type: SignatureTypes
+    ) => {
       if (status === "connected") {
+
+        let message;
+        if (type === "DeleteProposal") {
+          message = { uuid: args.uuid };
+        } else if (type === "Proposal") {
+          const { uuid, title, body, status } = args as SignNewProposal;
+          message = { uuid, title, body, status };
+        } else {
+          throw new Error("Invalid type " + type);
+        }
+
         return await signTypedDataAsync({
           types: signatureTypes,
           domain: signatureDomain,
-          primaryType: type || "Proposal",
-          message: {
-            uuid: args.uuid,
-            title: args.title,
-            body: args.body,
-            status: args.status,
-          },
+          primaryType: type,
+          message,
         })
       } else {
         throw new Error("wallet " + status);
       }
     },
-    [status, type, signTypedDataAsync]
+    [status, signTypedDataAsync]
   );
 
   return { trigger };

@@ -6,6 +6,7 @@ import { useSubmit } from "@remix-run/react";
 import { actionToMarkdown } from "~/utils/actionParser";
 import signProposal from "~/hooks/sign-proposal";
 import { useAccount } from "wagmi";
+import toast from "react-hot-toast";
 
 export default function PreviewForm({
   open,
@@ -85,17 +86,21 @@ export default function PreviewForm({
                         body: modifiedBody,
                         status: "Discussion",
                       };
-                      const uploaderSignature = await trigger(proposal);
-                      if (address && uploaderSignature) {
-                        submit(
-                          {
-                            ...proposal,
-                            uploaderSignature,
-                            uploaderAddress: address,
-                          },
-                          { method: "post", encType: "application/json" },
-                        );
-                      }
+                      toast.promise(trigger(proposal, "Proposal"), {
+                        loading: "Signing...",
+                        success: (uploaderSignature) => {
+                          if (address && uploaderSignature) {
+                            const data = {
+                              ...proposal,
+                              uploaderSignature,
+                              uploaderAddress: address,
+                            };
+                            submit(data, { method: "post", encType: "application/json" })
+                          }
+                          return "Proposal submitted!";
+                        },
+                        error: (err) => `${err?.error_description || err.toString()}`,
+                      });
                     }}
                     className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200"
                   >

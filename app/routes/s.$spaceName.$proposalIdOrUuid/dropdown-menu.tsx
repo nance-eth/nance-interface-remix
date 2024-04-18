@@ -7,11 +7,17 @@ import {
   PencilIcon,
   TrashIcon
 } from "@heroicons/react/24/outline"
-import { Link } from "@remix-run/react"
+import { Link, redirect, useParams } from "@remix-run/react"
 import { ProposalPacket } from "@nance/nance-sdk"
 import toast from "react-hot-toast"
+import SignProposal from "~/hooks/sign-proposal"
+import { deleteProposal } from "~/data/nance"
+import { useAccount } from "wagmi"
 
 export default function DropDownMenu({ proposalPacket } : { proposalPacket: ProposalPacket }) {
+  const space = useParams().spaceName;
+  const { trigger } = SignProposal();
+  const { address} = useAccount();
   return (
     <>
       <Menu as="div" className="relative inline-block">
@@ -104,6 +110,28 @@ export default function DropDownMenu({ proposalPacket } : { proposalPacket: Prop
                     className={`${
                       active ? "bg-red-400 text-white" : "text-gray-900"
                     } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                    onClick={() => {
+                      const data = { uuid: proposalPacket.uuid };
+                      toast.promise(trigger(data, "DeleteProposal"), {
+                        loading: "Deleting...",
+                        success: (deleterSignature) => {
+                          if (deleterSignature && address && space) {
+                            deleteProposal(space, {
+                              uuid: proposalPacket.uuid,
+                              deleterAddress: address,
+                              deleterSignature: deleterSignature,
+                            }).then((res) => {
+                              if (res.success) {
+                                window.location.href = `/s/${space}`;
+                              }
+                            });
+                          }
+                          return "Delete successful!";
+                        },
+                        error: (err) =>
+                          `${err?.error_description || err.toString()}`,
+                      });
+                    }}
                   >
                     <TrashIcon
                       className="mr-2 h-5 w-5"

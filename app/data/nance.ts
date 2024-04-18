@@ -1,5 +1,6 @@
 import {
   APIResponse,
+  ProposalDeleteRequest,
   ProposalUpdateRequest,
   ProposalUploadPayload,
   ProposalUploadRequest,
@@ -48,13 +49,14 @@ export async function updateProposal(
   return json;
 }
 
-export async function deleteProposal(space: string, proposalId: string) {
+export async function deleteProposal(space: string, args: ProposalDeleteRequest) {
   const endpoint = process.env.NODE_ENV === "production" ? API : "http://localhost:3003/";
-  const res = await fetch(`${endpoint}${space}/proposal/${proposalId}`, {
+  const res = await fetch(`${endpoint}${space}/proposal/${args.uuid}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
+    body: JSON.stringify(args),
   });
   const json: APIResponse<ProposalUploadPayload> = await res.json();
   if (json.success === false) {
