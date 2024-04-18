@@ -1,30 +1,42 @@
-import { Fragment } from "react"
-import { Menu, Transition } from "@headlessui/react"
+import { Fragment } from "react";
+import { Menu, Transition } from "@headlessui/react";
 import {
-  ArchiveBoxArrowDownIcon,
   ShareIcon,
   EllipsisVerticalIcon,
   PencilIcon,
-  TrashIcon
-} from "@heroicons/react/24/outline"
-import { Link, redirect, useParams } from "@remix-run/react"
-import { ProposalPacket } from "@nance/nance-sdk"
-import toast from "react-hot-toast"
-import SignProposal from "~/hooks/sign-proposal"
-import { deleteProposal } from "~/data/nance"
-import { useAccount } from "wagmi"
+  ChevronDownIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
+import { Link, useParams } from "@remix-run/react";
+import { ProposalPacket } from "@nance/nance-sdk";
+import toast from "react-hot-toast";
+import { deleteProposal } from "~/data/nance";
+import { useAccount } from "wagmi";
+import { useSignProposalAction } from "~/hooks/sign-proposal-action";
 
-export default function DropDownMenu({ proposalPacket } : { proposalPacket: ProposalPacket }) {
+export default function DropDownMenu({
+  proposalPacket,
+}: {
+  proposalPacket: ProposalPacket;
+}) {
   const space = useParams().spaceName;
-  const { trigger } = SignProposal();
-  const { address} = useAccount();
+  const { trigger } = useSignProposalAction();
+  const { address } = useAccount();
   return (
     <>
       <Menu as="div" className="relative inline-block">
         <div>
-          <Menu.Button className="inline-flex w-full justify-end rounded-md">
+          <Menu.Button className="inline-flex w-full justify-end rounded-md sm:hidden">
             <EllipsisVerticalIcon
               className="h-7 w-7 text-indigo-600 hover:text-gray-900"
+              aria-hidden="true"
+            />
+          </Menu.Button>
+
+          <Menu.Button className="hidden w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:inline-flex">
+            Options
+            <ChevronDownIcon
+              className="-mr-1 h-5 w-5 text-gray-400"
               aria-hidden="true"
             />
           </Menu.Button>
@@ -58,10 +70,7 @@ export default function DropDownMenu({ proposalPacket } : { proposalPacket: Prop
                       );
                     }}
                   >
-                    <ShareIcon
-                      className="mr-2 h-5 w-5"
-                      aria-hidden="true"
-                    />
+                    <ShareIcon className="mr-2 h-5 w-5" aria-hidden="true" />
                     Copy Link
                   </button>
                 )}
@@ -77,16 +86,13 @@ export default function DropDownMenu({ proposalPacket } : { proposalPacket: Prop
                       search: `?proposal=${proposalPacket.uuid}`,
                     }}
                   >
-                    <PencilIcon
-                      className="mr-2 h-5 w-5"
-                      aria-hidden="true"
-                    />
+                    <PencilIcon className="mr-2 h-5 w-5" aria-hidden="true" />
                     Edit
                   </Link>
                 )}
               </Menu.Item>
             </div>
-            <div className="px-1 py-1">
+            {/* <div className="px-1 py-1">
               <Menu.Item>
                 {({ active }) => (
                   <button
@@ -102,7 +108,7 @@ export default function DropDownMenu({ proposalPacket } : { proposalPacket: Prop
                   </button>
                 )}
               </Menu.Item>
-            </div>
+            </div> */}
             <div className="px-1 py-1">
               <Menu.Item>
                 {({ active }) => (
@@ -133,10 +139,7 @@ export default function DropDownMenu({ proposalPacket } : { proposalPacket: Prop
                       });
                     }}
                   >
-                    <TrashIcon
-                      className="mr-2 h-5 w-5"
-                      aria-hidden="true"
-                    />
+                    <TrashIcon className="mr-2 h-5 w-5" aria-hidden="true" />
                     Delete
                   </button>
                 )}
@@ -146,5 +149,5 @@ export default function DropDownMenu({ proposalPacket } : { proposalPacket: Prop
         </Transition>
       </Menu>
     </>
-  )
+  );
 }

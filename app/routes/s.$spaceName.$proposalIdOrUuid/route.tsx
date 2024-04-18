@@ -1,7 +1,7 @@
 import { useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import MarkdownWithTOC from "./markdown-with-toc";
-import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
 import NewVote from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
 import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
@@ -11,7 +11,6 @@ import { getVotesOfProposal } from "~/data/snapshot";
 import ProposalInfo from "~/components/proposal-info";
 import ActionLabel from "~/components/action-label";
 import DropDownMenu from "./dropdown-menu";
-import { deleteProposal } from "~/data/nance";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -89,7 +88,9 @@ export default function Proposal() {
               votingInfo={votes?.proposal}
               linkDisabled
             />
-            <DropDownMenu proposalPacket={proposalPacket} />
+            <ClientOnly fallback={<p>loading</p>}>
+              {() => <DropDownMenu proposalPacket={proposalPacket} />}
+            </ClientOnly>
           </div>
         </div>
       </header>

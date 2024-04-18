@@ -214,6 +214,8 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
   if (ret.success) {
     return redirect(`/s/${params.spaceName}/${ret.data.uuid}`);
+  } else {
+    throw json("Error: " + ret.error, { status: 500 });
   }
 };
 

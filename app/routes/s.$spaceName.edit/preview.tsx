@@ -4,9 +4,9 @@ import { Fragment } from "react";
 import MarkdownWithTOC from "../s.$spaceName.$proposalIdOrUuid/markdown-with-toc";
 import { useSubmit } from "@remix-run/react";
 import { actionToMarkdown } from "~/utils/actionParser";
-import signProposal from "~/hooks/sign-proposal";
 import { useAccount } from "wagmi";
 import toast from "react-hot-toast";
+import { useSignProposalAction } from "~/hooks/sign-proposal-action";
 
 export default function PreviewForm({
   open,
@@ -24,10 +24,9 @@ export default function PreviewForm({
   actions: Action[];
 }) {
   const submit = useSubmit();
-  const { trigger } = signProposal();
+  const { trigger } = useSignProposalAction();
 
   const modifiedBody = `${body}\n\n## Actions\n${actions.map((a) => "* " + actionToMarkdown(a)).join("\n")}`;
-  console.debug("a", { modifiedBody });
   const { address } = useAccount();
   return (
     <Transition appear show={open} as={Fragment}>
@@ -95,11 +94,15 @@ export default function PreviewForm({
                               uploaderSignature,
                               uploaderAddress: address,
                             };
-                            submit(data, { method: "post", encType: "application/json" })
+                            submit(data, {
+                              method: "post",
+                              encType: "application/json",
+                            });
                           }
                           return "Proposal submitted!";
                         },
-                        error: (err) => `${err?.error_description || err.toString()}`,
+                        error: (err) =>
+                          `${err?.error_description || err.toString()}`,
                       });
                     }}
                     className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200"

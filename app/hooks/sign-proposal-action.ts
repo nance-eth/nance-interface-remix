@@ -11,17 +11,16 @@ type SignDeleteProposal = {
   uuid: string;
 };
 
-export default function SignProposal() {
+export function useSignProposalAction() {
   const { status } = useAccount();
   const { signTypedDataAsync } = useSignTypedData();
 
   const trigger = useCallback(
     async (
       args: SignNewProposal | SignDeleteProposal,
-      type: SignatureTypes
+      type: SignatureTypes,
     ) => {
       if (status === "connected") {
-
         let message;
         if (type === "DeleteProposal") {
           message = { uuid: args.uuid };
@@ -37,12 +36,12 @@ export default function SignProposal() {
           domain: signatureDomain,
           primaryType: type,
           message,
-        })
+        });
       } else {
         throw new Error("wallet " + status);
       }
     },
-    [status, signTypedDataAsync]
+    [status, signTypedDataAsync],
   );
 
   return { trigger };
