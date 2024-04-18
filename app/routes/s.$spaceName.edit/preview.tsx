@@ -1,28 +1,34 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Action } from "@nance/nance-sdk";
+import { Action, SignNewProposal } from "@nance/nance-sdk";
 import { Fragment } from "react";
 import MarkdownWithTOC from "../s.$spaceName.$proposalIdOrUuid/markdown-with-toc";
 import { useSubmit } from "@remix-run/react";
 import { actionToMarkdown } from "~/utils/actionParser";
+import signProposal from "~/hooks/sign-proposal";
+import { useAccount } from "wagmi";
+import toast from "react-hot-toast";
 
 export default function PreviewForm({
   open,
   closeModal,
+  uuid,
   title,
   body,
   actions,
 }: {
   open: boolean;
   closeModal: () => void;
+  uuid: string;
   title: string;
   body: string;
   actions: Action[];
 }) {
   const submit = useSubmit();
+  const { trigger } = signProposal();
 
   const modifiedBody = `${body}\n\n## Actions\n${actions.map((a) => "* " + actionToMarkdown(a)).join("\n")}`;
   console.debug("a", { modifiedBody });
-
+  const { address } = useAccount();
   return (
     <Transition appear show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -73,11 +79,28 @@ export default function PreviewForm({
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      submit(
-                        { title, body: modifiedBody },
-                        { method: "post", encType: "application/json" },
-                      );
+                    onClick={async () => {
+                      const proposal: SignNewProposal = {
+                        uuid,
+                        title,
+                        body: modifiedBody,
+                        status: "Discussion",
+                      };
+                      toast.promise(trigger(proposal, "Proposal"), {
+                        loading: "Signing...",
+                        success: (uploaderSignature) => {
+                          if (address && uploaderSignature) {
+                            const data = {
+                              ...proposal,
+                              uploaderSignature,
+                              uploaderAddress: address,
+                            };
+                            submit(data, { method: "post", encType: "application/json" })
+                          }
+                          return "Proposal submitted!";
+                        },
+                        error: (err) => `${err?.error_description || err.toString()}`,
+                      });
                     }}
                     className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200"
                   >

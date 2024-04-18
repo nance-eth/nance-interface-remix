@@ -1,13 +1,15 @@
 import {
   APIResponse,
+  ProposalDeleteRequest,
   ProposalUpdateRequest,
   ProposalUploadPayload,
   ProposalUploadRequest,
 } from "@nance/nance-sdk";
 
-const endpoint = "https://api.nance.app/";
+const API = "https://api.nance.app/";
 
 export async function newProposal(args: ProposalUploadRequest) {
+  const endpoint = process.env.NODE_ENV === "production" ? API : "http://localhost:3003/";
   const res = await fetch(`${endpoint}${args.space}/proposals`, {
     method: "POST",
     headers: {
@@ -27,9 +29,10 @@ export async function newProposal(args: ProposalUploadRequest) {
 
 export async function updateProposal(
   args: ProposalUpdateRequest,
-  proposalId: string,
 ) {
-  const res = await fetch(`${endpoint}${args.space}/proposal/${proposalId}`, {
+  const endpoint = process.env.NODE_ENV === "production" ? API : "http://localhost:3003/";
+  console.log(endpoint);
+  const res = await fetch(`${endpoint}${args.space}/proposal/${args.proposal.uuid}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -46,12 +49,14 @@ export async function updateProposal(
   return json;
 }
 
-export async function deleteProposal(space: string, proposalId: string) {
-  const res = await fetch(`${endpoint}${space}/proposal/${proposalId}`, {
+export async function deleteProposal(space: string, args: ProposalDeleteRequest) {
+  const endpoint = process.env.NODE_ENV === "production" ? API : "http://localhost:3003/";
+  const res = await fetch(`${endpoint}${space}/proposal/${args.uuid}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
+    body: JSON.stringify(args),
   });
   const json: APIResponse<ProposalUploadPayload> = await res.json();
   if (json.success === false) {

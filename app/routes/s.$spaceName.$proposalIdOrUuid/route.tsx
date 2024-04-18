@@ -1,17 +1,17 @@
-import { Link, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import MarkdownWithTOC from "./markdown-with-toc";
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import NewVote from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
 import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
 import ErrorPage from "~/components/error-page";
-import toast from "react-hot-toast";
 import VoteList from "./vote-list";
 import { getVotesOfProposal } from "~/data/snapshot";
 import ProposalInfo from "~/components/proposal-info";
 import ActionLabel from "~/components/action-label";
-import { useEffect } from "react";
+import DropDownMenu from "./dropdown-menu";
+import { deleteProposal } from "~/data/nance";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -19,28 +19,48 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const quote = url.searchParams.get("quote");
 
-  const proposal = await getProposal({
+  const proposalPacket = await getProposal({
     space: params.spaceName,
     uuid: params.proposalIdOrUuid,
   });
 
   let cycleStageLengths;
-  if (proposal.actions?.find((action) => action.type === "Payout")) {
+  if (proposalPacket.actions?.find((action) => action.type === "Payout")) {
     const spaceConfig = await getSpaceConfig(params.spaceName);
     cycleStageLengths = spaceConfig.cycleStageLengths;
   }
 
-  const votes = await getVotesOfProposal(proposal.voteURL, 1000);
+  const votes = await getVotesOfProposal(proposalPacket.voteURL, 1000);
 
-  return json({ proposal, votes, cycleStageLengths, quote });
+  return json({ proposalPacket, votes, cycleStageLengths, quote });
 };
 
 export function ErrorBoundary() {
   return <ErrorPage />;
 }
 
+// export const action = async ({ params, request }: ActionFunctionArgs) => {
+//   invariant(params.spaceName, "Missing spaceName param");
+
+//   const url = new URL(request.url);
+//   const proposalIdOrUuid = url.searchParams.get("proposal");
+//   const data: FormData = await request.json();
+//   const ret = await deleteProposal({
+//     space: params.spaceName,
+//     args: {
+//       uuid: data.uuid,
+//       uploaderAddress: data.uploaderAddress,
+//       uploaderSignature: data.uploaderSignature,
+//     }
+//   });
+
+//   if (ret.success) {
+//     return redirect(`/s/${params.spaceName}`);
+//   }
+// };
+
 export default function Proposal() {
-  const { proposal, votes, cycleStageLengths, quote } =
+  const { proposalPacket, votes, cycleStageLengths, quote } =
     useLoaderData<typeof loader>();
 
   return (
@@ -63,46 +83,13 @@ export default function Proposal() {
         </div>
 
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 lg:py-10">
-          <div className="mx-auto flex max-w-2xl flex-wrap justify-between gap-x-8 gap-y-4 lg:mx-0 lg:max-w-none">
+          <div className="flex flex-row justify-between">
             <ProposalInfo
-              proposal={proposal}
+              proposalPacket={proposalPacket}
               votingInfo={votes?.proposal}
               linkDisabled
             />
-            <div className="flex items-center justify-end gap-x-4 sm:justify-center sm:gap-x-6">
-              <button
-                type="button"
-                onClick={() => {
-                  toast.promise(
-                    navigator.clipboard.writeText(window.location.href),
-                    {
-                      loading: "Copying...",
-                      success: "Copied!",
-                      error: (err) =>
-                        `${err?.error_description || err.toString()}`,
-                    },
-                  );
-                }}
-                className="text-sm font-semibold leading-6 text-gray-900 sm:block"
-              >
-                Copy URL
-              </button>
-              <Link
-                to={{
-                  pathname: "../edit",
-                  search: `?proposal=${proposal.uuid}`,
-                }}
-                className="text-sm font-semibold leading-6 text-gray-900 sm:block"
-              >
-                Edit
-              </Link>
-              <a
-                href="#votes"
-                className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Vote
-              </a>
-            </div>
+            <DropDownMenu proposalPacket={proposalPacket} />
           </div>
         </div>
       </header>
@@ -111,15 +98,15 @@ export default function Proposal() {
         <div className="mx-auto grid max-w-2xl grid-cols-1 grid-rows-1 items-start gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
           {/* Proposal */}
           <div className="-mx-4 px-4 py-8 shadow-sm ring-1 ring-gray-900/5 sm:mx-0 sm:rounded-lg sm:px-8 sm:pb-14 lg:col-span-2 lg:row-span-2 lg:row-end-2 xl:px-16 xl:pb-20 xl:pt-16">
-            {proposal.actions && proposal.actions.length > 0 && (
+            {proposalPacket.actions && proposalPacket.actions.length > 0 && (
               <div className="mb-6 break-words ">
                 <p className="text-gray-400">Proposed Transactions</p>
                 <div className="mt-2 space-y-2 text-sm">
-                  {proposal.actions?.map((action) => (
+                  {proposalPacket.actions?.map((action) => (
                     <ActionLabel
                       action={action}
                       key={action.uuid}
-                      proposalCycle={proposal.governanceCycle}
+                      proposalCycle={proposalPacket.governanceCycle}
                       cycleStageLengths={cycleStageLengths}
                     />
                   ))}
@@ -128,13 +115,13 @@ export default function Proposal() {
               </div>
             )}
             <MarkdownWithTOC
-              body={proposal.body || "--- No content ---"}
+              body={proposalPacket.body || "--- No content ---"}
               highlightPattern={quote || undefined}
             />
           </div>
 
           {/* Votes */}
-          {proposal.voteURL && (
+          {proposalPacket.voteURL && (
             <div className="lg:col-start-3">
               <h2
                 className="text-sm font-semibold leading-6 text-gray-900"
@@ -146,7 +133,7 @@ export default function Proposal() {
                 {() => (
                   <NewVote
                     snapshotSpace={"jbdao.eth"}
-                    proposalSnapshotId={proposal.voteURL as string}
+                    proposalSnapshotId={proposalPacket.voteURL as string}
                   />
                 )}
               </ClientOnly>
