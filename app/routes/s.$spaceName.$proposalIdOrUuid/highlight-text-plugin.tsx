@@ -83,7 +83,7 @@ export default function rehypeHighlightText(
     // ?quote=500%20-,equivalent,these%20days,-%20ar
     const regex = new RegExp(
       `${p.prefix}(${p.textStart}[\\s\\S]*?${p.textEnd})${p.suffix}`,
-      "g",
+      "gi",
     );
     const m = regex.exec(file.value as string);
 
@@ -96,11 +96,10 @@ export default function rehypeHighlightText(
           const start = parent.position.start.offset || 0;
           const end = parent.position.end.offset || 0;
           const inBetween = start <= mIndex && end >= mIndex;
-          const textInclude =
-            matchText?.includes(node.value) && node.value !== "\n";
-          if (inBetween || textInclude) {
+          const textInclude = matchText?.includes(node.value);
+          const notLineBreak = node.value !== "\n";
+          if (notLineBreak && (inBetween || textInclude)) {
             classnames(parent, "bg-purple-100");
-            console.debug("match", { text: node.value, parent });
           }
         }
       });
