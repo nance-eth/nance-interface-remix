@@ -116,7 +116,7 @@ export default function SpaceIndex() {
             <div className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 lg:px-8">
               <div className="mx-auto max-w-2xl text-center">
                 <p className="text-base font-semibold leading-8 text-indigo-600">
-                  {spaceInfo.name}
+                  {spaceInfo.displayName || spaceInfo.name}
                 </p>
                 <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">
                   {spaceInfo.currentEvent.title} of GC-{spaceInfo.currentCycle}

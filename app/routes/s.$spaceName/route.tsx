@@ -116,7 +116,7 @@ export default function SpaceLayout() {
                           </NavLink>
 
                           <NavLink
-                            to={`/`}
+                            to="/s"
                             className={({ isActive }) =>
                               classNames(
                                 isActive
@@ -125,6 +125,7 @@ export default function SpaceLayout() {
                                 "rounded-md px-3 py-2 text-sm font-medium",
                               )
                             }
+                            end
                           >
                             Spaces
                           </NavLink>
@@ -225,7 +226,7 @@ export default function SpaceLayout() {
 
                     <Disclosure.Button
                       as="a"
-                      href={`/`}
+                      href="/s"
                       className={
                         "block rounded-md px-3 py-2 text-base font-medium text-white hover:bg-indigo-500 hover:bg-opacity-75"
                       }
