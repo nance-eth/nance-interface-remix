@@ -11,6 +11,7 @@ import ProposalInfo from "~/components/proposal-info";
 import ActionLabel from "~/components/action-label";
 import DropDownMenu from "./dropdown-menu";
 import { useVotesOfProposal } from "~/data/snapshot";
+import ProposalSummary from "./proposal-summary";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -78,7 +79,7 @@ export default function Proposal() {
           {/* Proposal */}
           <div className="-mx-4 px-4 py-8 shadow-sm ring-1 ring-gray-900/5 sm:mx-0 sm:rounded-lg sm:px-8 sm:pb-14 lg:col-span-2 lg:row-span-2 lg:row-end-2 xl:px-16 xl:pb-20 xl:pt-16">
             {proposalPacket.actions && proposalPacket.actions.length > 0 && (
-              <div className="mb-6 break-words ">
+              <div className="mb-4 break-words ">
                 <p className="text-gray-400">Proposed Transactions</p>
                 <div className="mt-2 space-y-2 text-sm">
                   {proposalPacket.actions?.map((action) => (
@@ -92,6 +93,14 @@ export default function Proposal() {
                 <div className="mt-2 w-full border-t border-gray-300" />
               </div>
             )}
+
+            <div className="mb-6">
+              <ProposalSummary
+                proposalSummary={proposalPacket.proposalSummary}
+                threadSummary={proposalPacket.threadSummary}
+              />
+            </div>
+
             <MarkdownWithTOC
               body={proposalPacket.body || "--- No content ---"}
               highlightPattern={quote || undefined}
