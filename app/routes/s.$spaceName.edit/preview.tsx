@@ -26,7 +26,10 @@ export default function PreviewForm({
   const submit = useSubmit();
   const { trigger } = useSignProposalAction();
 
-  const modifiedBody = `${body}\n\n## Actions\n${actions.map((a) => "* " + actionToMarkdown(a)).join("\n")}`;
+  const modifiedBody =
+    actions.length > 0
+      ? `${body}\n\n## Actions\n${actions.map((a) => "* " + actionToMarkdown(a)).join("\n")}`
+      : body;
   const { address } = useAccount();
   return (
     <Transition appear show={open} as={Fragment}>
