@@ -4,10 +4,19 @@ import {
   ProposalUpdateRequest,
   ProposalUploadPayload,
   ProposalUploadRequest,
+  getSpaceConfig,
 } from "@nance/nance-sdk";
+import { skipToken, useQuery } from "@tanstack/react-query";
 
 // const endpoint = "http://localhost:3003/";
 const endpoint = "https://api.nance.app/";
+
+export function useSpaceConfig(spaceName: string, shouldFetch: boolean = true) {
+  return useQuery({
+    queryKey: [endpoint + "=> getSpaceConfig"],
+    queryFn: shouldFetch ? async () => getSpaceConfig(spaceName) : skipToken,
+  });
+}
 
 export async function newProposal(args: ProposalUploadRequest) {
   const res = await fetch(`${endpoint}${args.space}/proposals`, {

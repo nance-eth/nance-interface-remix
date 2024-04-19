@@ -5,13 +5,16 @@ import {
   DocumentMagnifyingGlassIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { ProposalsPacket } from "@nance/nance-sdk";
-import { Link, useOutletContext, useSearchParams } from "@remix-run/react";
+import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { formatDistanceStrict } from "date-fns";
 import { classNames } from "~/utils/tailwind";
 import { duplicateAndSetParams } from "~/utils/url";
-import { SnapshotGraphqlProposalVotingInfo } from "~/data/snapshot";
 import ProposalInfo from "~/components/proposal-info";
+import { loader } from "./route";
+import {
+  SnapshotGraphqlProposalVotingInfo,
+  useVotingInfoOfProposals,
+} from "~/data/snapshot";
 
 function NoResults() {
   return (
@@ -65,12 +68,16 @@ function NoActiveProposals() {
 }
 
 export default function ProposalList() {
-  const { proposalsPacket, votingInfoMap, searchMode } = useOutletContext<{
-    proposalsPacket: ProposalsPacket;
-    votingInfoMap: { [key: string]: SnapshotGraphqlProposalVotingInfo };
-    searchMode: boolean;
-  }>();
+  const { proposalsPacket, searchMode } = useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const snapshotIds = proposalsPacket.proposals
+    .map((p) => p.voteURL)
+    .filter((v) => v !== undefined) as string[]; // force cast typescript not recognizing removal of undefined
+  const { data: votingInfos } = useVotingInfoOfProposals(snapshotIds);
+  const votingInfoMap: { [key: string]: SnapshotGraphqlProposalVotingInfo } =
+    {};
+  votingInfos?.forEach((info) => (votingInfoMap[info.id] = info));
 
   const proposals = proposalsPacket.proposals.filter(
     (p) => searchMode || p.status !== "Archived",
@@ -99,7 +106,10 @@ export default function ProposalList() {
           className="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6"
         >
           <ProposalInfo
-            proposalPacket={{ ...proposal, proposalInfo: proposalsPacket.proposalInfo }}
+            proposalPacket={{
+              ...proposal,
+              proposalInfo: proposalsPacket.proposalInfo,
+            }}
             votingInfo={votingInfoMap[proposal.voteURL || ""]}
           />
           <div className="hidden shrink-0 items-center gap-x-4 sm:flex">

@@ -1,3 +1,4 @@
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { GraphQLClient, gql } from "graphql-request";
 import { ProposalType, getChoiceLabel } from "~/utils/snapshot";
 
@@ -5,7 +6,8 @@ const endpoint = "https://hub.snapshot.org/graphql";
 
 const graphQLClient = new GraphQLClient(endpoint, {
   headers: {
-    "x-api-key": process.env.SNAPSHOT_API_KEY || "",
+    "x-api-key":
+      "36ecfc8801efa1a398ffd200e31c5015999f76e8c783fb8bb10adcf38cb59190",
   },
 });
 
@@ -103,6 +105,18 @@ export type SnapshotGraphqlVote = {
   aha: string;
 };
 
+export function useVotingInfoOfProposals(
+  proposalIds: string[],
+  shouldFetch: boolean = true,
+) {
+  return useQuery({
+    queryKey: [endpoint + "=> getVotingInfoOfProposals"],
+    queryFn: shouldFetch
+      ? async () => getVotingInfoOfProposals(proposalIds)
+      : skipToken,
+  });
+}
+
 export async function getVotingInfoOfProposals(
   proposalIds: string[],
 ): Promise<SnapshotGraphqlProposalVotingInfo[]> {
@@ -117,6 +131,21 @@ export async function getVotingInfoOfProposals(
 interface VotesOfProposal {
   votes: SnapshotGraphqlVote[];
   proposal: SnapshotGraphqlProposalVotingInfo;
+}
+
+export function useVotesOfProposal(
+  id?: string,
+  first: number = 10,
+  skip: number = 0,
+  orderBy: "created" | "vp" = "created",
+  shouldFetch: boolean = true,
+) {
+  return useQuery({
+    queryKey: [endpoint + "=> getVotesOfProposal"],
+    queryFn: shouldFetch
+      ? async () => getVotesOfProposal(id, first, skip, orderBy)
+      : skipToken,
+  });
 }
 
 export async function getVotesOfProposal(

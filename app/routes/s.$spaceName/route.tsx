@@ -19,61 +19,23 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { ConnectKitButton } from "connectkit";
 import { ClientOnly } from "remix-utils/client-only";
-import {
-  GovernanceEvent,
-  GovernanceEventName,
-  getProposals,
-  getSpace,
-} from "@nance/nance-sdk";
+import { getSpace } from "@nance/nance-sdk";
 import ErrorPage from "~/components/error-page";
-import {
-  SnapshotGraphqlProposalVotingInfo,
-  getVotingInfoOfProposals,
-} from "~/data/snapshot";
 import { getChainIdFromName } from "~/utils/chain";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+  invariant(params.spaceName, "Missing spaceName param");
+
   const url = new URL(request.url);
   const keyword = url.searchParams.get("keyword");
-  const cycle = url.searchParams.get("cycle");
-  const searchMode = (keyword || cycle) !== null;
-  const page = parseInt(url.searchParams.get("page") || "1");
 
-  invariant(params.spaceName, "Missing spaceName param");
   const spaceInfo = await getSpace(params.spaceName);
   const chainId = getChainIdFromName(spaceInfo.transactorAddress?.network);
 
-  // Display next cycle in Active tab if we are in last stages of current cycle
-  const noVotingNeedThisCycle = GovernanceEventName.slice(2).includes(
-    spaceInfo.currentEvent.title as GovernanceEvent,
-  );
-  const activeCycle = (
-    noVotingNeedThisCycle ? spaceInfo.currentCycle + 1 : spaceInfo.currentCycle
-  ).toString();
-
-  const proposalsPacket = await getProposals({
-    space: params.spaceName,
-    cycle: cycle || (searchMode ? "All" : activeCycle),
-    limit: 8,
-    keyword,
-    page,
-  });
-  const snapshotIds = proposalsPacket.proposals
-    .map((p) => p.voteURL)
-    .filter((v) => v !== undefined) as string[]; // force cast typescript not recognizing removal of undefined
-  const votingInfos = await getVotingInfoOfProposals(snapshotIds);
-  const votingInfoMap: { [key: string]: SnapshotGraphqlProposalVotingInfo } =
-    {};
-  votingInfos.forEach((info) => (votingInfoMap[info.id] = info));
-
   return {
     spaceInfo,
-    proposalsPacket,
-    votingInfoMap,
-    keyword,
-    page,
-    searchMode,
     chainId,
+    keyword,
   };
 };
 
@@ -82,14 +44,7 @@ export function ErrorBoundary() {
 }
 
 export default function SpaceLayout() {
-  const {
-    spaceInfo,
-    proposalsPacket,
-    votingInfoMap,
-    keyword,
-    chainId,
-    searchMode,
-  } = useLoaderData<typeof loader>();
+  const { spaceInfo, chainId, keyword } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
 
   const navigationParams = new URLSearchParams(navigation.location?.search);
@@ -143,7 +98,10 @@ export default function SpaceLayout() {
                       <div className="hidden lg:ml-10 lg:block">
                         <div className="flex space-x-4">
                           <NavLink
-                            to={`/s/${spaceInfo.name}`}
+                            to={{
+                              pathname: `/s/${spaceInfo.name}`,
+                              search: "?cycle=All",
+                            }}
                             className={({ isActive }) =>
                               classNames(
                                 isActive
@@ -176,6 +134,7 @@ export default function SpaceLayout() {
                     <Form
                       id="search-form"
                       role="search"
+                      action={`/s/${spaceInfo.name}`}
                       className="flex flex-1 justify-center px-2 lg:ml-6 lg:justify-end"
                     >
                       <div className="w-full max-w-lg lg:max-w-xs">
@@ -303,9 +262,6 @@ export default function SpaceLayout() {
             <Outlet
               context={{
                 spaceInfo,
-                proposalsPacket,
-                searchMode,
-                votingInfoMap,
                 chainId,
               }}
             />

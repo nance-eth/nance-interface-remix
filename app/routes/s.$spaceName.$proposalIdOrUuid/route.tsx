@@ -4,13 +4,13 @@ import MarkdownWithTOC from "./markdown-with-toc";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import NewVote from "./new-vote";
 import { ClientOnly } from "remix-utils/client-only";
-import { getProposal, getSpaceConfig } from "@nance/nance-sdk";
+import { getProposal } from "@nance/nance-sdk";
 import ErrorPage from "~/components/error-page";
 import VoteList from "./vote-list";
-import { getVotesOfProposal } from "~/data/snapshot";
 import ProposalInfo from "~/components/proposal-info";
 import ActionLabel from "~/components/action-label";
 import DropDownMenu from "./dropdown-menu";
+import { useVotesOfProposal } from "~/data/snapshot";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.spaceName, "Missing spaceName param");
@@ -23,44 +23,22 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     uuid: params.proposalIdOrUuid,
   });
 
-  let cycleStageLengths;
-  if (proposalPacket.actions?.find((action) => action.type === "Payout")) {
-    const spaceConfig = await getSpaceConfig(params.spaceName);
-    cycleStageLengths = spaceConfig.cycleStageLengths;
-  }
-
-  const votes = await getVotesOfProposal(proposalPacket.voteURL, 1000);
-
-  return json({ proposalPacket, votes, cycleStageLengths, quote });
+  return json({ proposalPacket, quote });
 };
 
 export function ErrorBoundary() {
   return <ErrorPage />;
 }
 
-// export const action = async ({ params, request }: ActionFunctionArgs) => {
-//   invariant(params.spaceName, "Missing spaceName param");
-
-//   const url = new URL(request.url);
-//   const proposalIdOrUuid = url.searchParams.get("proposal");
-//   const data: FormData = await request.json();
-//   const ret = await deleteProposal({
-//     space: params.spaceName,
-//     args: {
-//       uuid: data.uuid,
-//       uploaderAddress: data.uploaderAddress,
-//       uploaderSignature: data.uploaderSignature,
-//     }
-//   });
-
-//   if (ret.success) {
-//     return redirect(`/s/${params.spaceName}`);
-//   }
-// };
-
 export default function Proposal() {
-  const { proposalPacket, votes, cycleStageLengths, quote } =
-    useLoaderData<typeof loader>();
+  const { proposalPacket, quote } = useLoaderData<typeof loader>();
+  const { data } = useVotesOfProposal(
+    proposalPacket.voteURL,
+    1000,
+    0,
+    "created",
+    proposalPacket.voteURL !== undefined,
+  );
 
   return (
     <>
@@ -85,7 +63,7 @@ export default function Proposal() {
           <div className="flex flex-row justify-between">
             <ProposalInfo
               proposalPacket={proposalPacket}
-              votingInfo={votes?.proposal}
+              votingInfo={data?.proposal}
               linkDisabled
             />
             <ClientOnly fallback={<p>loading</p>}>
@@ -108,7 +86,6 @@ export default function Proposal() {
                       action={action}
                       key={action.uuid}
                       proposalCycle={proposalPacket.governanceCycle}
-                      cycleStageLengths={cycleStageLengths}
                     />
                   ))}
                 </div>
@@ -138,7 +115,7 @@ export default function Proposal() {
                   />
                 )}
               </ClientOnly>
-              <VoteList votes={votes?.votes} />
+              <VoteList votes={data?.votes} />
             </div>
           )}
         </div>

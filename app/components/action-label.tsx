@@ -20,15 +20,15 @@ import ProjectLink from "./project-link";
 import TokenSymbol from "./token-symbol";
 import { formatNumber } from "~/utils/number";
 import { DEPLOY_CONTRACT_FAKE_ADDRESS } from "~/utils/address";
+import { useSpaceConfig } from "~/data/nance";
+import { ClientOnly } from "remix-utils/client-only";
 
 export default function ActionLabel({
   action,
   proposalCycle,
-  cycleStageLengths,
 }: {
   action: Action;
   proposalCycle?: number | undefined;
-  cycleStageLengths?: number[] | undefined;
 }) {
   const comment = "// Unrecognized action, pls check";
 
@@ -40,11 +40,14 @@ export default function ActionLabel({
     );
   } else if (action.type === "Payout") {
     return (
-      <PayoutActionLabel
-        payout={action.payload as Payout}
-        proposalCycle={proposalCycle}
-        cycleStageLengths={cycleStageLengths}
-      />
+      <ClientOnly fallback={<div>Payout action loading...</div>}>
+        {() => (
+          <PayoutActionLabel
+            payout={action.payload as Payout}
+            proposalCycle={proposalCycle}
+          />
+        )}
+      </ClientOnly>
     );
   } else if (action.type === "Transfer") {
     return <TransferActionLabel transfer={action.payload as Transfer} />;
@@ -121,15 +124,15 @@ function TransferActionLabel({ transfer }: { transfer: Transfer }) {
 function PayoutActionLabel({
   payout,
   proposalCycle,
-  cycleStageLengths,
 }: {
   payout: Payout;
   proposalCycle: number | undefined;
-  cycleStageLengths: number[] | undefined;
 }) {
   const { spaceInfo } = useOutletContext<{
     spaceInfo: SpaceInfo;
   }>();
+  const { data: spaceConfig } = useSpaceConfig(spaceInfo.name);
+  const cycleStageLengths = spaceConfig?.cycleStageLengths;
 
   const address = payout.address;
   const project = payout.project;

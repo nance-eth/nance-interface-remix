@@ -21,6 +21,7 @@ import { classNames } from "./utils/tailwind";
 import Footer from "./components/footer";
 import { Analytics } from "@vercel/analytics/react";
 import { WindowEnv } from "./utils/env";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const links: LinksFunction = () => [
   {
@@ -42,6 +43,8 @@ export async function loader() {
   });
 }
 
+const queryClient = new QueryClient();
+
 export default function App() {
   const { ENV, commitSha } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
@@ -59,7 +62,13 @@ export default function App() {
           navigation.state === "loading" && "animate-pulse",
         )}
       >
-        <ClientOnly fallback={<Outlet />}>
+        <ClientOnly
+          fallback={
+            <QueryClientProvider client={queryClient}>
+              <Outlet />
+            </QueryClientProvider>
+          }
+        >
           {() => (
             <Web3Provider>
               <Outlet />

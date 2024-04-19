@@ -9,6 +9,8 @@ export function calculateRecent3Schedules(
   cycleStageLengths: number[],
   currentEvent: DateEvent,
 ) {
+  if (cycleStageLengths.length === 0) return [];
+
   const startDate = new Date(currentEvent.start);
   const eventName = currentEvent.title;
   const currentIndex = GovernanceEventName.indexOf(eventName);
