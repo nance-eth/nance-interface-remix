@@ -25,6 +25,7 @@ import FunctionSelector from "~/components/function-selector";
 import { FunctionFragment, Interface } from "ethers";
 import { useSafeInject } from "~/components/SafeInjectIframeCard/context/SafeInjectedContext";
 import SafeInjectIframeCard from "~/components/SafeInjectIframeCard";
+import ENSAddressInput from "~/components/ens-address-input";
 
 // Schema validation for inputs
 const PayoutSchema = z.object({
@@ -123,15 +124,16 @@ export function PayoutActionForm({
                     <div className="relative rounded-md rounded-b-none px-3 pb-1.5 pt-2.5 ring-1 ring-inset ring-gray-300 focus-within:z-10 focus-within:ring-2 focus-within:ring-indigo-600">
                       <label
                         htmlFor="address"
-                        className="block text-xs font-medium text-gray-900"
+                        className="mb-2 block text-xs font-medium text-gray-900"
                       >
                         Beneficiary
                       </label>
-                      <input
-                        type="text"
-                        {...register("address")}
-                        className="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                        placeholder="0xEdf62C8A931e164E20f221f4c95397Fba4b6568A"
+                      <Controller
+                        control={control}
+                        name="address"
+                        render={({
+                          field: { onChange, onBlur, value, ref },
+                        }) => <ENSAddressInput val={value} setVal={onChange} />}
                       />
                       <ErrorMessage
                         errors={errors}
@@ -144,7 +146,7 @@ export function PayoutActionForm({
                     <div className="relative rounded-md rounded-b-none rounded-t-none px-3 pb-1.5 pt-2.5 ring-1 ring-inset ring-gray-300 focus-within:z-10 focus-within:ring-2 focus-within:ring-indigo-600">
                       <label
                         htmlFor="project"
-                        className="block text-xs font-medium text-gray-900"
+                        className="mb-2 block text-xs font-medium text-gray-900"
                       >
                         Project
                       </label>
@@ -279,6 +281,7 @@ export function TransferActionForm({
     trigger,
     getValues,
     reset,
+    control,
     formState: { errors },
   } = useForm<TransferForm>({
     mode: "onBlur",
@@ -331,15 +334,16 @@ export function TransferActionForm({
                     <div className="relative rounded-md rounded-b-none px-3 pb-1.5 pt-2.5 ring-1 ring-inset ring-gray-300 focus-within:z-10 focus-within:ring-2 focus-within:ring-indigo-600">
                       <label
                         htmlFor="to"
-                        className="block text-xs font-medium text-gray-900"
+                        className="mb-2 block text-xs font-medium text-gray-900"
                       >
                         Address
                       </label>
-                      <input
-                        type="text"
-                        {...register("to")}
-                        className="block w-full border-0 p-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                        placeholder="0xEdf62C8A931e164E20f221f4c95397Fba4b6568A"
+                      <Controller
+                        control={control}
+                        name="to"
+                        render={({
+                          field: { onChange, onBlur, value, ref },
+                        }) => <ENSAddressInput val={value} setVal={onChange} />}
                       />
                       <ErrorMessage
                         errors={errors}
