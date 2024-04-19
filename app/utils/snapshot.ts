@@ -87,6 +87,8 @@ export function getChoiceLabel(
   choices: string[] | undefined,
   choice: number | number[] | { [key: string]: number } | undefined,
 ): string {
+  if (typeof choice === "string") return "🔐";
+
   if (!type || !choices || !choice) return "Unknown";
 
   if (type == "approval") {
